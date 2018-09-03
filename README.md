@@ -2,12 +2,24 @@
 
 Multi-language Char RNN in TensorFlow. You can use this code to generate English text, Chinese poetries and lyrics, Japanese text and text in other language.
 
-一个基于最新版本TensorFlow的Char RNN实现。可以实现生成英文、写诗、歌词、小说、生成代码、生成日文等功能。
-
-
 ## Requirements
-- Python 2.7.X
+- Python 3.6.X
 - TensorFlow >= 1.2
+
+### Setup guide for OSX
+
+- Get Python 3.6.5 (later version has issues with `tensorflow`) - 
+```$ brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/f2a764ef944b1080be64bd88dca9a1d80130c558/Formula/python.rb```
+- Update PIP - 
+```$ pip3 install --upgrade pip```
+- Install Virtualenv - 
+```$ pip3 install virtualenv```
+- Create new environment in dir `venv` - 
+```$ virtualenv -p python3 venv```
+- Activate environment - 
+```$ source venv/bin/activate```
+- Install dependencies - 
+```(venv) $ pip install -r requirements.txt```
 
 ## Generate English Text
 
@@ -258,5 +270,5 @@ Result:
 
 ## Acknowledgement
 
-Some codes are borrowed from [NELSONZHAO/zhihu/anna_lstm](https://github.com/NELSONZHAO/zhihu/tree/master/anna_lstm)
+Forked from [hzy46/Char-RNN-TensorFlow](https://github.com/hzy46/Char-RNN-TensorFlow)
 
