@@ -102,3 +102,8 @@ ENV/
 # custom
 
 model/
+venv/
+
+# IntelliJ
+*.iml
+
