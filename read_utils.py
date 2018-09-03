@@ -1,7 +1,5 @@
 import numpy as np
 import copy
-import time
-import tensorflow as tf
 import pickle
 
 
