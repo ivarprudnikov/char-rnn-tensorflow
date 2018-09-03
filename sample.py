@@ -2,7 +2,6 @@ import tensorflow as tf
 from read_utils import TextConverter
 from model import CharRNN
 import os
-from IPython import embed
 
 FLAGS = tf.flags.FLAGS
 
