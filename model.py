@@ -1,4 +1,3 @@
-# coding: utf-8
 from __future__ import print_function
 import tensorflow as tf
 import numpy as np
@@ -7,11 +6,8 @@ import os
 
 def pick_top_n(preds, vocab_size, top_n=5):
     p = np.squeeze(preds)
-    # 将除了top_n个预测值的位置都置为0
     p[np.argsort(p)[:-top_n]] = 0
-    # 归一化概率
     p = p / np.sum(p)
-    # 随机选取一个字符
     c = np.random.choice(vocab_size, 1, p=p)[0]
     return c
 
@@ -50,8 +46,6 @@ class CharRNN:
                 self.num_seqs, self.num_steps), name='targets')
             self.keep_prob = tf.placeholder(tf.float32, name='keep_prob')
 
-            # 对于中文，需要使用embedding层
-            # 英文字母没有必要用embedding层
             if self.use_embedding is False:
                 self.lstm_inputs = tf.one_hot(self.inputs, self.num_classes)
             else:
@@ -60,7 +54,6 @@ class CharRNN:
                     self.lstm_inputs = tf.nn.embedding_lookup(embedding, self.inputs)
 
     def build_lstm(self):
-        # 创建单个cell并堆叠多层
         def get_a_cell(lstm_size, keep_prob):
             lstm = tf.nn.rnn_cell.BasicLSTMCell(lstm_size)
             drop = tf.nn.rnn_cell.DropoutWrapper(lstm, output_keep_prob=keep_prob)
@@ -72,10 +65,8 @@ class CharRNN:
             )
             self.initial_state = cell.zero_state(self.num_seqs, tf.float32)
 
-            # 通过dynamic_rnn对cell展开时间维度
             self.lstm_outputs, self.final_state = tf.nn.dynamic_rnn(cell, self.lstm_inputs, initial_state=self.initial_state)
 
-            # 通过lstm_outputs得到概率
             seq_output = tf.concat(self.lstm_outputs, 1)
             x = tf.reshape(seq_output, [-1, self.lstm_size])
 
@@ -94,7 +85,6 @@ class CharRNN:
             self.loss = tf.reduce_mean(loss)
 
     def build_optimizer(self):
-        # 使用clipping gradients
         tvars = tf.trainable_variables()
         grads, _ = tf.clip_by_global_norm(tf.gradients(self.loss, tvars), self.grad_clip)
         train_op = tf.train.AdamOptimizer(self.learning_rate)
@@ -138,7 +128,6 @@ class CharRNN:
         preds = np.ones((vocab_size, ))  # for prime=[]
         for c in prime:
             x = np.zeros((1, 1))
-            # 输入单个字符
             x[0, 0] = c
             feed = {self.inputs: x,
                     self.keep_prob: 1.,
@@ -147,10 +136,8 @@ class CharRNN:
                                         feed_dict=feed)
 
         c = pick_top_n(preds, vocab_size)
-        # 添加字符到samples中
         samples.append(c)
 
-        # 不断生成字符，直到达到指定数目
         for i in range(n_samples):
             x = np.zeros((1, 1))
             x[0, 0] = c
