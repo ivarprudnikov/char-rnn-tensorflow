@@ -3,6 +3,7 @@ from read_utils import TextConverter, batch_generator
 from model import CharRNN
 import os
 import codecs
+import re
 
 FLAGS = tf.flags.FLAGS
 
@@ -16,11 +17,24 @@ tf.flags.DEFINE_integer('embedding_size', 128, 'size of embedding')
 tf.flags.DEFINE_float('learning_rate', 0.001, 'learning_rate')
 tf.flags.DEFINE_float('train_keep_prob', 0.5, 'dropout rate during training')
 tf.flags.DEFINE_string('input_file', '', 'utf8 encoded text file')
+tf.flags.DEFINE_string('whitelist_file', '', 'utf8 encoded text file')
 tf.flags.DEFINE_integer('max_steps', 100000, 'max steps to train')
 tf.flags.DEFINE_integer('save_every_n', 1000, 'save the model every n steps')
 tf.flags.DEFINE_integer('log_every_n', 10, 'log to the screen every n steps')
 tf.flags.DEFINE_integer('max_vocab', 3500, 'max char number')
 
+
+def remove_non_matching_chars(text, whitelist):
+    print("leaving only characters that match " + whitelist)
+    # to lowercase
+    text = text.lower()
+    text = re.sub(r'[^' + whitelist + ']', ' ', text)
+    text = text.replace('\n',' ')
+    text = text.replace('\r',' ')
+    # shorten any extra dead space created above
+    text = text.replace('  ',' ')
+    print("cleaned corpus size " + str(len(text)))
+    return text
 
 def main(_):
     model_path = os.path.join('model', FLAGS.name)
@@ -28,12 +42,18 @@ def main(_):
         os.makedirs(model_path)
     with codecs.open(FLAGS.input_file, encoding='utf-8') as f:
         text = f.read()
+    print("corpus size " + str(len(text)))
+
+    if os.path.exists(FLAGS.whitelist_file):
+        with codecs.open(FLAGS.whitelist_file, encoding='utf-8') as f:
+            whitelist = f.read()
+        text = remove_non_matching_chars(text, whitelist)
+
     converter = TextConverter(text, FLAGS.max_vocab)
     converter.save_to_file(os.path.join(model_path, 'converter.pkl'))
 
     arr = converter.text_to_arr(text)
     g = batch_generator(arr, FLAGS.num_seqs, FLAGS.num_steps)
-    print(converter.vocab_size)
     model = CharRNN(converter.vocab_size,
                     num_seqs=FLAGS.num_seqs,
                     num_steps=FLAGS.num_steps,
