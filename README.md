@@ -64,6 +64,41 @@ I the camples.
 
 ```
 
+## Generate Lithuanian novel
+
+To train:
+
+```
+python train.py \
+  --input_file data/ltu-vincas-mykolaitis-putinas-altoriu-sesely.txt  \
+  --whitelist_file data/ltu-char-whitelist.txt \
+  --name altoriu-sesely \
+  --num_steps 50 \
+  --num_seqs 32 \
+  --learning_rate 0.01 \
+  --max_steps 2000
+```
+
+To sample:
+
+```
+python sample.py \
+  --converter_path model/altoriu-sesely/converter.pkl \
+  --checkpoint_path model/altoriu-sesely/ \
+  --max_length 1000
+```
+
+Result:
+```text
+čiavo seniais pasikrintoje, net pariko, pamokslą. Parapijos sau išsiskaitė, 
+kad jis patinka sevuosiuj ne tependu tiek nusipažinęs perklaudymim prie komalenė, 
+nesenose pasiteisinti, nei tuos patasinia ponią balginė jos iš karta, kalbos, 
+klausimus kunigas ir prieš nesusidaryti, ir pripusėjo jusdinančią pradžias 
+susistinga kunigo iš jo stačiai išsiviešia pasistatė, pasakyti sakai, ir 
+kitą paskutinio pilko pirme pareigos kunigėliu kun. 
+Ramučių pradėjo ir niekad tuomet nors ir nors, bet pamokėjusi kas
+```
+
 ## Generate Chinese Poetries
 
 To train:
@@ -98,48 +133,6 @@ Result:
 何当不相见，何处见江边。
 一叶生云里，春风出竹堂。
 何时有相访，不得在君心。
-```
-
-## Generate Chinese Novels
-
-To train (The file "novel.txt" is not included in this repo. You should find one and make sure it is utf-8 encoded!):
-```
-python train.py \
-  --use_embedding True \
-  --input_file data/novel.txt \
-  --num_steps 80 \
-  --name novel \
-  --learning_rate 0.005 \
-  --num_seqs 32 \
-  --num_layers 3 \
-  --embedding_size 256 \
-  --lstm_size 256 \
-  --max_steps 1000000
-```
-
-To sample:
-```
-python sample.py \
-  --converter_path model/novel/converter.pkl \
-  --checkpoint_path  model/novel \
-  --use_embedding \
-  --max_length 2000 \
-  --num_layers 3 \
-  --lstm_size 256 \
-  --embedding_size 256
-```
-
-Result:
-```
-闻言，萧炎一怔，旋即目光转向一旁的那名灰袍青年，然后目光在那位老者身上扫过，那里，一个巨大的石台上，有着一个巨大的巨坑，一些黑色光柱，正在从中，一道巨大的黑色巨蟒，一股极度恐怖的气息，从天空上暴射而出 ，然后在其中一些一道道目光中，闪电般的出现在了那些人影，在那种灵魂之中，却是有着许些强者的感觉，在他们面前，那一道道身影，却是如同一道黑影一般，在那一道道目光中，在这片天地间，在那巨大的空间中，弥漫而开……
-
-“这是一位斗尊阶别，不过不管你，也不可能会出手，那些家伙，可以为了这里，这里也是能够有着一些异常，而且他，也是不能将其他人给你的灵魂，所以，这些事，我也是不可能将这一个人的强者给吞天蟒，这般一次，我们的实力，便是能够将之击杀……”
-
-“这里的人，也是能够与魂殿强者抗衡。”
-
-萧炎眼眸中也是掠过一抹惊骇，旋即一笑，旋即一声冷喝，身后那些魂殿殿主便是对于萧炎，一道冷喝的身体，在天空之上暴射而出，一股恐怖的劲气，便是从天空倾洒而下。
-
-“嗤！”
 ```
 
 ## Generate Chinese Lyrics
