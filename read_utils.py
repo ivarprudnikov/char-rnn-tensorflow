@@ -19,26 +19,32 @@ def batch_generator(arr, n_seqs, n_steps):
 
 
 class TextConverter(object):
+    """
+    Convert chars to ints
+    Setup mapping tables char<=>int
+    """
     def __init__(self, text=None, max_vocab=5000, filename=None):
         if filename is not None:
             with open(filename, 'rb') as f:
                 self.vocab = pickle.load(f)
         else:
             vocab = set(text)
-            print(len(vocab))
-            # max_vocab_process
             vocab_count = {}
-            for word in vocab:
-                vocab_count[word] = 0
-            for word in text:
-                vocab_count[word] += 1
+            for char in vocab:
+                vocab_count[char] = 0
+            for char in text:
+                vocab_count[char] += 1
             vocab_count_list = []
-            for word in vocab_count:
-                vocab_count_list.append((word, vocab_count[word]))
+            for char in vocab_count:
+                vocab_count_list.append((char, vocab_count[char]))
             vocab_count_list.sort(key=lambda x: x[1], reverse=True)
             if len(vocab_count_list) > max_vocab:
                 vocab_count_list = vocab_count_list[:max_vocab]
             vocab = [x[0] for x in vocab_count_list]
+
+            print("using " +  str(len(vocab)) + " unique characters of this corpus:")
+            print(vocab)
+
             self.vocab = vocab
 
         self.word_to_int_table = {c: i for i, c in enumerate(self.vocab)}
