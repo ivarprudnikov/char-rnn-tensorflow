@@ -106,4 +106,5 @@ venv/
 
 # IntelliJ
 *.iml
+.idea
 
