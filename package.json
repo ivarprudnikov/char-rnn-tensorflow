@@ -1,0 +1,30 @@
+{
+  "name": "char-rnn-tensorflow",
+  "version": "1.0.0",
+  "description": "HTTP server exposing train.py and sample.py scripts via API",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ivarprudnikov/char-rnn-tensorflow.git"
+  },
+  "keywords": [
+    "rnn",
+    "python",
+    "aws"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ivarprudnikov/char-rnn-tensorflow/issues"
+  },
+  "homepage": "https://github.com/ivarprudnikov/char-rnn-tensorflow#readme",
+  "dependencies": {
+    "busboy": "^0.2.14",
+    "express": "^4.16.3",
+    "uuid": "^3.3.2"
+  }
+}
