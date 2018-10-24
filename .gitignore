@@ -108,3 +108,6 @@ venv/
 *.iml
 .idea
 
+# Node
+node_modules/
+
