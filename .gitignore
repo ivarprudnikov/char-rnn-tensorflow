@@ -109,5 +109,6 @@ venv/
 .idea
 
 # Node
+server/node_modules/
 node_modules/
 
