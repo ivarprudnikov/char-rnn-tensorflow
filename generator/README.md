@@ -1,4 +1,4 @@
-# Char-RNN-TensorFlow - IN PROGRESS
+# Char-RNN-TensorFlow
 
 Multi-language Char RNN in TensorFlow. You can use this code to generate English text, Chinese poetries and lyrics, Japanese text and text in other language.
 
