@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>Trainer & Generator</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <link rel="stylesheet" href="static/bootstrap.min.css">
+</head>
+<body>
+
+
+<nav class="sticky-top py-1 navbar navbar-dark bg-primary navbar-expand">
+  <div class="container">
+    <a class="navbar-brand" href="/">Trainer & Generator</a>
+
+    <ul class="navbar-nav align-content-end">
+      <li class="nav-item active">
+        <a class="nav-link" href="#">About</a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="#">Models</a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="#">Start new</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<main role="main" class="container">
+
+  <div class="row">
+
+    <form action="train" method="post" enctype="multipart/form-data"
+          class="mt-5 col-sm-8 offset-sm-2 col-lg-6 offset-lg-3">
+
+      <div class="form-group">
+        <div class="custom-file">
+          <input name="file" type="file" class="custom-file-input" id="customFile">
+          <label class="custom-file-label" for="customFile">Choose file</label>
+        </div>
+        <small class="form-text text-muted">
+          File should be plain/text containing data you want to use for training
+        </small>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Upload</button>
+    </form>
+
+  </div>
+
+</main>
+
+<script src="static/jquery-3.3.1.min.js"></script>
+<script src="static/popper.min.js"></script>
+<script src="static/bootstrap.bundle.min.js"></script>
+<!-- Google Analytics: change UA-XXXXX-Y to be your site's ID. -->
+<script>
+  window.ga = function () {
+    ga.q.push(arguments)
+  };
+  ga.q = [];
+  ga.l = +new Date;
+  ga('create', 'UA-XXXXX-Y', 'auto');
+  ga('send', 'pageview')
+</script>
+<script src="https://www.google-analytics.com/analytics.js" async defer></script>
+</body>
+</html>
