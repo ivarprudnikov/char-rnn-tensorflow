@@ -9,14 +9,16 @@ const PORT = 8080
 
 app.post('/train', function (req, res) {
 
+    const id = uuidv1()
     const busboy = new Busboy({headers: req.headers})
     let fileStream = null
     let filePath = null
-    const id = uuidv1()
-    const trainFileName = `${id}.train.txt`
+    let folderPath = path.join(os.tmpdir(), id)
+
     busboy.on('file', (fieldName, file, fileName, encoding, mimetype) => {
         // TODO upload to AWS S3 id folder
-        filePath = path.join(os.tmpdir(), trainFileName)
+        fs.mkdirSync(folderPath)
+        filePath = path.join(folderPath, 'train.txt')
         fileStream = file.pipe(fs.createWriteStream(filePath))
     });
 
@@ -25,7 +27,7 @@ app.post('/train', function (req, res) {
             res.status(400).send({error: 'Cannot save given training data'})
         } else {
             fileStream.on('finish', () => {
-                res.status(200).send({data: {id: id, path: filePath}})
+                res.status(200).send({id: id, folder: folderPath, file: filePath})
             })
             fileStream.on('error', () => {
                 res.status(400).send({error: 'Error occurred while writing file'})
