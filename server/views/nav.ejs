@@ -1,0 +1,23 @@
+<nav class="sticky-top py-1 navbar navbar-dark bg-primary navbar-expand">
+  <div class="container">
+    <a class="navbar-brand" href="/">Trainer & Generator</a>
+
+    <ul class="navbar-nav align-content-end">
+      <li class="nav-item active">
+        <a class="nav-link" href="#">About</a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="#">Models</a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="#">Start new</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<% if(locals.error){ %>
+<div class="my-5 col-sm-8 offset-sm-2 col-lg-6 offset-lg-3">
+  <div class="alert alert-danger"><%= error %></div>
+</div>
+<% } %>

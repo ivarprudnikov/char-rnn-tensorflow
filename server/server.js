@@ -15,6 +15,10 @@ app.get('/', function (req, res) {
     res.render('index')
 })
 
+app.get('/train', function (req, res) {
+  res.render('train')
+})
+
 app.post('/train', function (req, res) {
 
     const id = uuidv1()
@@ -31,14 +35,21 @@ app.post('/train', function (req, res) {
     });
 
     busboy.on('finish', () => {
+        res.set({Connection: 'close'});
+
         if (!fileStream) {
-            res.status(400).send({error: 'Cannot save given training data'})
+          res.locals.error = "Cannot save given training data";
+          res.render('train');
         } else {
             fileStream.on('finish', () => {
-                res.status(200).send({id: id, folder: folderPath, file: filePath})
+                res.locals.id = id
+                res.locals.folder = folderPath
+                res.locals.file = filePath
+                res.render('uploaded');
             })
             fileStream.on('error', () => {
-                res.status(400).send({error: 'Error occurred while writing file'})
+                res.locals.error = "Error occurred while writing file";
+                res.render('train');
             })
         }
     })

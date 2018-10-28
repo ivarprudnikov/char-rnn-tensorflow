@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+  <%- include('head'); %>
+</head>
+<body>
+
+<%- include('nav'); %>
+
+<main role="main" class="container">
+
+  <div class="row">
+
+    <form action="train" method="post" enctype="multipart/form-data"
+          class="mt-5 col-sm-8 offset-sm-2 col-lg-6 offset-lg-3">
+
+      <div class="form-group">
+        <div class="custom-file">
+          <input name="file" type="file" class="custom-file-input" id="customFile">
+          <label class="custom-file-label" for="customFile">Choose file</label>
+        </div>
+        <small class="form-text text-muted">
+          File should be plain/text containing data you want to use for training
+        </small>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Upload</button>
+    </form>
+
+  </div>
+
+</main>
+
+</body>
+</html>

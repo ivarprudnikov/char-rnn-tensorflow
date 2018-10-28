@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+  <%- include('head'); %>
+</head>
+<body>
+
+<%- include('nav'); %>
+
+<main role="main" class="container">
+
+  <div class="row">
+
+    <div class="mt-5 col-sm-8 offset-sm-2 col-lg-6 offset-lg-3">
+
+      <h1>Success</h1>
+
+      <p>Your training data was uploaded and now is being processed</p>
+
+      <dl>
+        <dt>ID</dt>
+        <dd><%= id %></dd>
+        <dt>Folder</dt>
+        <dd><%= folder %></dd>
+        <dt>File</dt>
+        <dd><%= file %></dd>
+      </dl>
+
+    </div>
+
+  </div>
+
+</main>
+
+</body>
+</html>
