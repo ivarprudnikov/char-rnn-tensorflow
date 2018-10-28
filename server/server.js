@@ -57,6 +57,10 @@ app.post('/train', function (req, res) {
   req.pipe(busboy)
 })
 
+app.get('/models', function (req, res) {
+  res.render('models')
+})
+
 app.listen(PORT, () => {
   console.log('\n');
   console.log('+--------------------------')
