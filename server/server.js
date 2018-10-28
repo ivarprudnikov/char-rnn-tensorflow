@@ -22,7 +22,13 @@ app.get('/train', function (req, res) {
 app.post('/train', function (req, res) {
 
   const id = uuidv1()
-  const busboy = new Busboy({headers: req.headers})
+  const busboy = new Busboy({
+    headers: req.headers,
+    limits: {
+      fileSize: 1024 * 50, // bytes
+      files: 1 // only one file per request
+    }
+  })
   let fileStream = null
   let filePath = null
   let folderPath = path.join(os.tmpdir(), id)
