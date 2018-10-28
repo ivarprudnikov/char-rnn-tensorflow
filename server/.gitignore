@@ -1,0 +1,8 @@
+# IntelliJ
+*.iml
+.idea
+
+# Node
+node_modules/
+uploads/
+

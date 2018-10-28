@@ -11,6 +11,13 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.use('/static', express.static(path.join(__dirname, 'public')))
 
+const UPLOADS_PATH = path.join(__dirname, 'uploads')
+try {
+  fs.mkdirSync(UPLOADS_PATH)
+} catch (err) {
+  if (err.code !== 'EEXIST') throw err
+}
+
 app.get('/', function (req, res) {
   res.render('index')
 })
@@ -31,7 +38,7 @@ app.post('/train', function (req, res) {
   })
   let fileStream = null
   let filePath = null
-  let folderPath = path.join(os.tmpdir(), id)
+  let folderPath = path.join(UPLOADS_PATH, id)
 
   busboy.on('file', (fieldName, file, fileName, encoding, mimetype) => {
     // TODO upload to AWS S3 id folder
@@ -64,6 +71,13 @@ app.post('/train', function (req, res) {
 })
 
 app.get('/models', function (req, res) {
+  const folders = fs.readdirSync(UPLOADS_PATH)
+  res.locals.models = (folders || []).map((folderName) => {
+    return {
+      name: folderName,
+      status: 'In progress'
+    }
+  });
   res.render('models')
 })
 

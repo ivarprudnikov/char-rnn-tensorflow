@@ -13,6 +13,12 @@
 
     <div class="mt-5 col-sm-8 offset-sm-2 col-lg-6 offset-lg-3">
       <h1 class="text-center mb-5">Generator models</h1>
+
+      <ul>
+      <% models.forEach((model) => { %>
+        <li><%= model.name %> <span class="badge badge-info"><%= model.status %></span></li>
+      <% }) %>
+      </ul>
     </div>
 
   </div>

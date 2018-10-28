@@ -108,7 +108,3 @@ venv/
 *.iml
 .idea
 
-# Node
-server/node_modules/
-node_modules/
-
