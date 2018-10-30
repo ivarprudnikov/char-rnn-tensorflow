@@ -11,6 +11,7 @@ const {spawn} = require('child_process')
 const PORT = 8080
 const TRAIN_FILENAME = "train.txt"
 const TRAIN_PID_FILENAME = "train.pid"
+const LOG_FILENAME = "output.log"
 const UPLOADS_DIR = "uploads"
 const MODEL_DIR = "model"
 const PUBLIC_DIR = "public"
@@ -39,7 +40,7 @@ function trainModel(submissionId) {
   rimraf.sync(modelDir)
   mkdirp.sync(modelDir)
 
-  const logFilePath = path.join(folderPath, 'output.log')
+  const logFilePath = path.join(folderPath, LOG_FILENAME)
   fs.writeFileSync(logFilePath)
   const out = fs.openSync(logFilePath, 'a');
   const err = fs.openSync(logFilePath, 'a');
@@ -133,11 +134,17 @@ app.get('/models', function (req, res) {
   const folders = fs.readdirSync(UPLOADS_PATH)
   res.locals.models = (folders || []).map((folderName) => {
     return {
-      name: folderName,
-      status: 'In progress'
+      id: folderName,
+      status: fs.existsSync(path.join(UPLOADS_PATH, folderName, TRAIN_PID_FILENAME)) ? 'In progress' : 'Stopped'
     }
   });
   res.render('models')
+})
+
+app.get('/models/:id', function (req, res) {
+  res.locals.id = req.params.id
+  res.locals.log = fs.readFileSync(path.join(UPLOADS_PATH, req.params.id, LOG_FILENAME))
+  res.render('model')
 })
 
 // Start server

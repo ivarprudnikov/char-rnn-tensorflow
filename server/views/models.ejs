@@ -16,7 +16,11 @@
 
       <ul>
       <% models.forEach((model) => { %>
-        <li><%= model.name %> <span class="badge badge-info"><%= model.status %></span></li>
+        <li>
+          <a href="/models/<%= model.id %>">
+            <%= model.id %> <span class="badge badge-info"><%= model.status %></span>
+          </a>
+        </li>
       <% }) %>
       </ul>
     </div>
