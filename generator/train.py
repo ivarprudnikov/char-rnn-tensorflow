@@ -37,7 +37,8 @@ def remove_non_matching_chars(text, whitelist):
     return text
 
 def main(_):
-    model_path = os.path.join('model', FLAGS.name)
+    script_path = os.path.abspath(os.path.dirname(__file__))
+    model_path = os.path.join(script_path, 'model', FLAGS.name)
     if os.path.exists(model_path) is False:
         os.makedirs(model_path)
     with codecs.open(FLAGS.input_file, encoding='utf-8') as f:
