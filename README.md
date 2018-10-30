@@ -15,6 +15,15 @@ in [`generator/README.md`](generator/README.md).
 Trivial _Node.js_ server used to store incoming training data and call `python` scripts to train 
 and generate text. Read about it in [`server/README.md`](server/README.md)
 
+## Development
+
+Both `server` and `generator` are wrapped with Docker.
+
+### Build and run
+
+- To `build` container image: `docker build -t <some_name> .`
+- To `run` built image: `docker run -p 8080:8080 -ti --rm <some_name>`
+
 ## Your feedback
 
 You are free to open issues if there is anything bothering you, I'll read through and will make 
