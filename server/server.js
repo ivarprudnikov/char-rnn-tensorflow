@@ -54,12 +54,12 @@ function trainModel(submissionId) {
   */
   const subprocess = spawn('python', [
     path.join(__dirname, '../generator/train.py'),
-    `--input_file ${trainFilePath}`,
-    `--name ${Date.now()}`,
-    "--num_steps 50",
-    "--num_seqs 32",
-    "--learning_rate 0.01",
-    "--max_steps 20000",
+    "--input_file", trainFilePath,
+    "--name", submissionId,
+    "--num_steps", "50",
+    "--num_seqs", "32",
+    "--learning_rate", "0.01",
+    "--max_steps", "1000"
   ], {
     stdio: ['ignore', out, err]
   });
