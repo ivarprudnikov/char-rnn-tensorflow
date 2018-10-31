@@ -3,6 +3,16 @@ FROM python:3.6
 # replace shell with bash so we can source files
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
+# prepare workdir
+ENV APP_PATH /app
+RUN mkdir -p $APP_PATH
+COPY . $APP_PATH
+
+WORKDIR $APP_PATH/server
+
+# install generator dependencies
+RUN pip install -r $APP_PATH/generator/requirements.txt
+
 # Install node.js
 ENV NODE_VERSION 10.12.0
 ENV NVM_DIR /usr/local/nvm
@@ -26,15 +36,7 @@ ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 RUN node -v
 RUN npm -v
 
-# prepare workdir
-ENV APP_PATH /app
-RUN mkdir -p $APP_PATH
-COPY . $APP_PATH
-
-RUN pip install -r $APP_PATH/generator/requirements.txt
-
-WORKDIR $APP_PATH/server
-
+# install server dependencies
 RUN npm i
 
 EXPOSE 8080
