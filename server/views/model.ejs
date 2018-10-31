@@ -11,11 +11,18 @@
 
   <div class="row">
 
-    <div class="mt-5 col-sm-8 offset-sm-2 col-lg-6 offset-lg-3">
-      <h1 class="text-center mb-5">Model <%= id %></h1>
-
-      <pre><%= log %></pre>
-
+    <div class="col-sm-6">
+      <h1 class="mb-5">Model</h1>
+      <dl class="mb-5">
+        <dt>ID</dt>
+        <dd><%= id %></dd>
+        <dt>Status</dt>
+        <dd><%= status %></dd>
+      </dl>
+    </div>
+    <div class="col-sm-6">
+      <h2 class="mb-5">Training log</h2>
+      <pre class="bg-dark text-light p-3"><%= log %></pre>
     </div>
 
   </div>

@@ -16,6 +16,8 @@ const UPLOADS_DIR = "uploads"
 const MODEL_DIR = "model"
 const PUBLIC_DIR = "public"
 const VIEWS_DIR = "views"
+const STATUS_IN_PROGRESS = "In progress"
+const STATUS_STOPPED = "Stopped"
 
 app.set('views', path.join(__dirname, VIEWS_DIR));
 app.set('view engine', 'ejs');
@@ -135,7 +137,7 @@ app.get('/models', function (req, res) {
   res.locals.models = (folders || []).map((folderName) => {
     return {
       id: folderName,
-      status: fs.existsSync(path.join(UPLOADS_PATH, folderName, TRAIN_PID_FILENAME)) ? 'In progress' : 'Stopped'
+      status: fs.existsSync(path.join(UPLOADS_PATH, folderName, TRAIN_PID_FILENAME)) ? STATUS_IN_PROGRESS : STATUS_STOPPED
     }
   });
   res.render('models')
@@ -144,6 +146,7 @@ app.get('/models', function (req, res) {
 app.get('/models/:id', function (req, res) {
   res.locals.id = req.params.id
   res.locals.log = fs.readFileSync(path.join(UPLOADS_PATH, req.params.id, LOG_FILENAME))
+  res.locals.status = fs.existsSync(path.join(UPLOADS_PATH, req.params.id, TRAIN_PID_FILENAME)) ? STATUS_IN_PROGRESS : STATUS_STOPPED
   res.render('model')
 })
 
