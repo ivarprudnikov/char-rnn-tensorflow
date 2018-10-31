@@ -9,25 +9,38 @@
 
 <main role="main" class="container">
 
-  <div class="row">
+  <div class="row mt-3">
 
     <div class="col-sm-6">
-      <h1 class="mb-5">Model</h1>
-      <dl class="mb-5">
+      <h1 class="mb-3">Model</h1>
+      <dl class="mb-3">
         <dt>ID</dt>
         <dd><%= id %></dd>
         <dt>Status</dt>
         <dd><%= status %></dd>
       </dl>
+      <% if(status !== 'In progress'){ %>
+        <hr class="mb-3">
+        <button type="button" class="btn btn-primary" onclick="generateSample()">Generate sample</button>
+        <div id="sample" class="bg-dark text-light p-3 my-3" style="display: none"></div>
+      <% } %>
     </div>
     <div class="col-sm-6">
-      <h2 class="mb-5">Training log</h2>
+      <h2 class="mb-3">Training log</h2>
       <pre class="bg-dark text-light p-3"><%= log %></pre>
     </div>
 
   </div>
 
 </main>
+
+<script>
+  function generateSample() {
+    $("#sample").empty()
+    $("#sample").show()
+    $("#sample").text("foo")
+  }
+</script>
 
 </body>
 </html>
