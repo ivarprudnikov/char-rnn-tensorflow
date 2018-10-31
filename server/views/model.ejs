@@ -21,7 +21,7 @@
       </dl>
       <% if(status !== 'In progress'){ %>
         <hr class="mb-3">
-        <button type="button" class="btn btn-primary" onclick="generateSample()">Generate sample</button>
+        <button id="sampleBtn" type="button" class="btn btn-primary" onclick="generateSample()">Generate sample</button>
         <div id="sample" class="bg-dark text-light p-3 my-3" style="display: none"></div>
       <% } %>
     </div>
@@ -38,7 +38,19 @@
   function generateSample() {
     $("#sample").empty()
     $("#sample").show()
-    $("#sample").text("foo")
+
+    $("#sampleBtn").prop("disabled", true )
+
+    $.getJSON("/model/<%= id %>/sample")
+      .done(function (data) {
+        $("#sample").text(data.text)
+      })
+      .fail(function (data) {
+        $("#sample").text(data && data.error || "Error occurred")
+      })
+      .always(function () {
+        $("#sampleBtn").prop("disabled", false )
+      })
   }
 </script>
 

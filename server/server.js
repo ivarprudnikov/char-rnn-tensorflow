@@ -150,6 +150,20 @@ app.get('/models/:id', function (req, res) {
   res.render('model')
 })
 
+app.get('/models/:id/sample', function (req, res) {
+  let id = req.params.id
+  if (!id) {
+    res.status(400).send({ error: "Unrecognized ID" })
+    return
+  }
+  if (fs.existsSync(path.join(UPLOADS_PATH, req.params.id, TRAIN_PID_FILENAME))) {
+    res.status(400).send({ error: "Training still in progress" })
+    return
+  }
+
+  res.json({ text: "test" })
+})
+
 // Start server
 //////////////////////////////////////////////////////////////////////
 
