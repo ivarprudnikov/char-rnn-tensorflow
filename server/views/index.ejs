@@ -7,17 +7,26 @@
 
 <%- include('nav'); %>
 
-<main role="main" class="container">
+<main role="main">
 
-  <div class="row">
-
-    <div class="mt-5 col-sm-8 offset-sm-2 col-lg-6 offset-lg-3">
-      Go to <a href="/train">training page</a> to upload your
-      data and then generate text based on it.
+  <section class="jumbotron text-center">
+    <div class="container">
+      <h1 class="jumbotron-heading">Train LSTM network</h1>
+      <p class="lead text-muted">Build your own character (text) generator from large text samples like books
+      and source code
+      </p>
+      <p>
+        <a href="/train" class="btn btn-primary my-2">Start training</a>
+        <a href="/models" class="btn btn-outline-primary my-2">Browse submissions</a>
+      </p>
     </div>
+  </section>
+
+  <div class="container">
+
+
 
   </div>
-
 </main>
 
 </body>
