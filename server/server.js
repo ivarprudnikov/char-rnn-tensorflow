@@ -18,6 +18,7 @@ const PUBLIC_DIR = "public"
 const VIEWS_DIR = "views"
 const STATUS_IN_PROGRESS = "In progress"
 const STATUS_STOPPED = "Stopped"
+const GENERATOR_PATH = path.join(__dirname, '../generator')
 
 app.set('views', path.join(__dirname, VIEWS_DIR));
 app.set('view engine', 'ejs');
@@ -33,12 +34,10 @@ function trainModel(submissionId) {
 
   if (!submissionId) return;
 
-  console.log(UPLOADS_PATH, submissionId)
-
-  let folderPath = path.join(UPLOADS_PATH, submissionId)
-  let trainFilePath = path.join(folderPath, TRAIN_FILENAME)
-  let trainPidPath = path.join(folderPath, TRAIN_PID_FILENAME)
-  const modelDir = path.join(folderPath, MODEL_DIR)
+  const folderPath = path.join(UPLOADS_PATH, submissionId)
+  const trainFilePath = path.join(folderPath, TRAIN_FILENAME)
+  const trainPidPath = path.join(folderPath, TRAIN_PID_FILENAME)
+  const modelDir = path.join(GENERATOR_PATH, submissionId, MODEL_DIR)
   rimraf.sync(modelDir)
   mkdirp.sync(modelDir)
 
@@ -56,7 +55,7 @@ function trainModel(submissionId) {
     --max_steps 20000
   */
   const subprocess = spawn('python', [
-    path.join(__dirname, '../generator/train.py'),
+    path.join(GENERATOR_PATH, 'train.py'),
     "--input_file", trainFilePath,
     "--name", submissionId,
     "--num_steps", "50",
@@ -69,6 +68,44 @@ function trainModel(submissionId) {
   fs.writeFileSync(trainPidPath, subprocess.pid)
   subprocess.on("error", () => rimraf.sync(trainPidPath))
   subprocess.on("exit", () => rimraf.sync(trainPidPath))
+}
+
+function sampleModel(submissionId, cb) {
+
+  if (!submissionId) return;
+
+  const modelDir = path.join(GENERATOR_PATH, submissionId, MODEL_DIR)
+  if (fs.existsSync(modelDir)) {
+    return
+  }
+
+  /*
+  python sample.py \
+    --converter_path model/shakespeare/converter.pkl \
+    --checkpoint_path model/shakespeare/ \
+    --max_length 1000
+  */
+  const subprocess = spawn('python', [
+    path.join(GENERATOR_PATH, 'sample.py'),
+    "--converter_path", path.join(modelDir, "converter.pkl"),
+    "--checkpoint_path", modelDir,
+    "--max_length", "1000"
+  ]);
+
+  let cbCalled = false
+  subprocess.stdout.on('data', (data) => {
+    cbCalled = true;
+    cb(data);
+  });
+
+  subprocess.stderr.on('data', (data) => {
+    cbCalled = true;
+    cb(data);
+  });
+
+  subprocess.on("exit", () => {
+    if (!cbCalled) cb()
+  })
 }
 
 // Routes
@@ -151,17 +188,19 @@ app.get('/models/:id', function (req, res) {
 })
 
 app.get('/models/:id/sample', function (req, res) {
-  let id = req.params.id
+  const id = req.params.id
   if (!id) {
-    res.status(400).send({ error: "Unrecognized ID" })
+    res.status(400).send({error: "Unrecognized ID"})
     return
   }
-  if (fs.existsSync(path.join(UPLOADS_PATH, req.params.id, TRAIN_PID_FILENAME))) {
-    res.status(400).send({ error: "Training still in progress" })
+  if (fs.existsSync(path.join(UPLOADS_PATH, id, TRAIN_PID_FILENAME))) {
+    res.status(400).send({error: "Training still in progress"})
     return
   }
 
-  res.json({ text: "test" })
+  sampleModel(id, function (data) {
+    res.json({text: data})
+  })
 })
 
 // Start server
