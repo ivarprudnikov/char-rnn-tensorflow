@@ -41,7 +41,7 @@
 
     $("#sampleBtn").prop("disabled", true )
 
-    $.getJSON("/model/<%= id %>/sample")
+    $.getJSON("/models/<%= id %>/sample")
       .done(function (data) {
         $("#sample").text(data.text)
       })

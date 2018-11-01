@@ -7,6 +7,7 @@ const fs = require('fs')
 const rimraf = require('rimraf')
 const mkdirp = require('mkdirp')
 const {spawn} = require('child_process')
+const util = require("util")
 
 const PORT = 8080
 const TRAIN_FILENAME = "train.txt"
@@ -61,7 +62,7 @@ function trainModel(submissionId) {
     "--num_steps", "50",
     "--num_seqs", "32",
     "--learning_rate", "0.01",
-    "--max_steps", "1000"
+    "--max_steps", "100"
   ], {
     stdio: ['ignore', out, err]
   });
@@ -70,14 +71,25 @@ function trainModel(submissionId) {
   subprocess.on("exit", () => rimraf.sync(trainPidPath))
 }
 
-function sampleModel(submissionId, cb) {
+/**
+ *
+ * @param submissionId
+ * @return readable stream
+ */
+function sampleModel(submissionId) {
 
-  if (!submissionId) return;
+  let cbCalled = false
+  function callBack(data) {
+    if (!cbCalled) {
+      cbCalled = true
+      cb(data && data.toString())
+    }
+  }
+
+  if (!submissionId) return callBack("missing id")
 
   const modelDir = path.join(GENERATOR_PATH, submissionId, MODEL_DIR)
-  if (fs.existsSync(modelDir)) {
-    return
-  }
+  if (!fs.existsSync(modelDir)) return callBack("missing model")
 
   /*
   python sample.py \
@@ -92,20 +104,10 @@ function sampleModel(submissionId, cb) {
     "--max_length", "1000"
   ]);
 
-  let cbCalled = false
-  subprocess.stdout.on('data', (data) => {
-    cbCalled = true;
-    cb(data);
-  });
-
-  subprocess.stderr.on('data', (data) => {
-    cbCalled = true;
-    cb(data);
-  });
-
-  subprocess.on("exit", () => {
-    if (!cbCalled) cb()
-  })
+  subprocess.stdout.on('data', (data) => callBack(data));
+  subprocess.stderr.on('data', (data) => callBack(data));
+  subprocess.on("error", callBack)
+  subprocess.on("exit", callBack)
 }
 
 // Routes
@@ -181,9 +183,16 @@ app.get('/models', function (req, res) {
 })
 
 app.get('/models/:id', function (req, res) {
-  res.locals.id = req.params.id
-  res.locals.log = fs.readFileSync(path.join(UPLOADS_PATH, req.params.id, LOG_FILENAME))
-  res.locals.status = fs.existsSync(path.join(UPLOADS_PATH, req.params.id, TRAIN_PID_FILENAME)) ? STATUS_IN_PROGRESS : STATUS_STOPPED
+  const id = req.params.id
+  res.locals.id = id
+  const logFile = path.join(UPLOADS_PATH, id, LOG_FILENAME)
+  const trainPidFile = path.join(UPLOADS_PATH, id, TRAIN_PID_FILENAME)
+  if (!fs.existsSync(logFile)) {
+    res.render('404')
+    return
+  }
+  res.locals.log = fs.readFileSync(logFile)
+  res.locals.status = fs.existsSync(trainPidFile) ? STATUS_IN_PROGRESS : STATUS_STOPPED
   res.render('model')
 })
 
@@ -198,9 +207,11 @@ app.get('/models/:id/sample', function (req, res) {
     return
   }
 
-  sampleModel(id, function (data) {
-    res.json({text: data})
-  })
+  const program = sampleModel(id)
+  program.pipe(res)
+  program.on('end', function() {
+    res.end({text:"Completed"});
+  });
 })
 
 // Start server
