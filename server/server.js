@@ -7,7 +7,7 @@ const fs = require('fs')
 const rimraf = require('rimraf')
 const mkdirp = require('mkdirp')
 const {spawn} = require('child_process')
-const util = require("util")
+const {Readable} = require("stream")
 
 const PORT = 8080
 const TRAIN_FILENAME = "train.txt"
@@ -38,7 +38,7 @@ function trainModel(submissionId) {
   const folderPath = path.join(UPLOADS_PATH, submissionId)
   const trainFilePath = path.join(folderPath, TRAIN_FILENAME)
   const trainPidPath = path.join(folderPath, TRAIN_PID_FILENAME)
-  const modelDir = path.join(GENERATOR_PATH, submissionId, MODEL_DIR)
+  const modelDir = path.join(GENERATOR_PATH, MODEL_DIR, submissionId)
   rimraf.sync(modelDir)
   mkdirp.sync(modelDir)
 
@@ -73,23 +73,29 @@ function trainModel(submissionId) {
 
 /**
  *
- * @param submissionId
- * @return readable stream
+ * @param submissionId {String}
+ * @return process {ChildProcess}
  */
 function sampleModel(submissionId) {
 
-  let cbCalled = false
-  function callBack(data) {
-    if (!cbCalled) {
-      cbCalled = true
-      cb(data && data.toString())
-    }
+  const s = new Readable()
+  const programStub = {
+    stdout: s,
+    stderr: s
   }
 
-  if (!submissionId) return callBack("missing id")
+  if (!submissionId) {
+    programStub.stderr.push('missing id')
+    programStub.stderr.push(null)
+    return programStub
+  }
 
-  const modelDir = path.join(GENERATOR_PATH, submissionId, MODEL_DIR)
-  if (!fs.existsSync(modelDir)) return callBack("missing model")
+  const modelDir = path.join(GENERATOR_PATH, MODEL_DIR, submissionId)
+  if (!fs.existsSync(modelDir)) {
+    programStub.stderr.push('missing model')
+    programStub.stderr.push(null)
+    return programStub
+  }
 
   /*
   python sample.py \
@@ -102,12 +108,11 @@ function sampleModel(submissionId) {
     "--converter_path", path.join(modelDir, "converter.pkl"),
     "--checkpoint_path", modelDir,
     "--max_length", "1000"
-  ]);
+  ], {
+    stdio: ["ignore", "pipe", "pipe"]
+  });
 
-  subprocess.stdout.on('data', (data) => callBack(data));
-  subprocess.stderr.on('data', (data) => callBack(data));
-  subprocess.on("error", callBack)
-  subprocess.on("exit", callBack)
+  return subprocess
 }
 
 // Routes
@@ -208,10 +213,9 @@ app.get('/models/:id/sample', function (req, res) {
   }
 
   const program = sampleModel(id)
-  program.pipe(res)
-  program.on('end', function() {
-    res.end({text:"Completed"});
-  });
+  res.set('Content-Type', 'text/plain');
+  program.stdout.pipe(res)
+  program.stderr.pipe(res)
 })
 
 // Start server

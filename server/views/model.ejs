@@ -41,12 +41,12 @@
 
     $("#sampleBtn").prop("disabled", true )
 
-    $.getJSON("/models/<%= id %>/sample")
+    $.get("/models/<%= id %>/sample")
       .done(function (data) {
-        $("#sample").text(data.text)
+        $("#sample").text(data)
       })
       .fail(function (data) {
-        $("#sample").text(data && data.error || "Error occurred")
+        $("#sample").text(data || "Error occurred")
       })
       .always(function () {
         $("#sampleBtn").prop("disabled", false )
