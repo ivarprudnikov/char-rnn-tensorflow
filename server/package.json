@@ -29,5 +29,19 @@
     "mkdirp": "^0.5.1",
     "rimraf": "^2.6.2",
     "uuid": "^3.3.2"
+  },
+  "eslintConfig": {
+    "env": {
+      "browser": true,
+      "commonjs": true,
+      "node": true,
+      "es6": true
+    },
+    "extends": "eslint:recommended",
+    "rules": {
+      "semi": 0,
+      "no-console": "warn",
+      "no-unused-vars": "warn"
+    }
   }
 }
