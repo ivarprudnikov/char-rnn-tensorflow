@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/ivarprudnikov/char-rnn-tensorflow#readme",
   "dependencies": {
+    "ajv": "^6.5.4",
     "busboy": "^0.2.14",
     "ejs": "~2.5.7",
     "express": "^4.16.3",

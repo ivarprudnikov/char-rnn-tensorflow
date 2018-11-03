@@ -17,10 +17,13 @@
       <h1 class="text-center mb-5">Train new</h1>
 
       <div class="form-group">
-        <div class="custom-file">
-          <input name="file" type="file" class="custom-file-input" id="customFile">
-          <label class="custom-file-label" for="customFile">Choose file</label>
-        </div>
+        <label for="num_seqs">Number of seqs in one batch</label>
+        <input name="num_seqs" type="number" id="num_seqs" class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label for="customFile">Choose file</label>
+        <input name="file" type="file" id="customFile">
         <small class="form-text text-muted">
           File should be plain/text containing data you want to use for training
         </small>

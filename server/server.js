@@ -3,6 +3,7 @@ const app = express()
 const Busboy = require('busboy')
 const uuidv1 = require('uuid/v1') // timestamp based
 const path = require('path')
+const util = require('util')
 const fs = require('fs')
 const mkdirp = require('mkdirp')
 const {sampleModel, trainModel} = require("./generator");
@@ -51,12 +52,17 @@ app.post('/train', function (req, res) {
   let fileStream = null
   let filePath = null
   let folderPath = path.join(UPLOADS_PATH, id)
+  let params = {}
 
   busboy.on('file', (fieldName, file, fileName, encoding, mimetype) => {
     // TODO upload to AWS S3 id folder
     fs.mkdirSync(folderPath)
     filePath = path.join(folderPath, TRAIN_FILENAME)
     fileStream = file.pipe(fs.createWriteStream(filePath))
+  });
+
+  busboy.on('field', function(fieldname, val, fieldnameTruncated, valTruncated, encoding, mimetype) {
+    params[fieldname] = val
   });
 
   busboy.on('finish', () => {
@@ -68,7 +74,7 @@ app.post('/train', function (req, res) {
     } else {
       fileStream.on('finish', () => {
 
-        trainModel(id + "")
+        trainModel(id + "", params)
 
         res.locals.id = id
         res.locals.folder = folderPath

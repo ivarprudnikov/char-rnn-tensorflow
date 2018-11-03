@@ -4,6 +4,8 @@ const {spawn} = require('child_process')
 const {Readable} = require("stream")
 const fs = require('fs')
 const path = require('path')
+const util = require('util')
+const Ajv = require('ajv');
 const {
   UPLOADS_PATH,
   TRAIN_FILENAME,
@@ -13,14 +15,60 @@ const {
   LOG_FILENAME
 } = require("./constants")
 
+const trainOptionsSchema = {
+  $id: "generator/schema/training/options.json",
+  $schema: "http://json-schema.org/draft-07/schema#",
+  type: "object",
+  properties: {
+    num_seqs: {type: "integer", minimum: 1, description: "number of seqs in one batch"},
+    num_steps: {type: "integer", minimum: 1, description: "length of one seq"},
+    lstm_size: {type: "integer", minimum: 0, description: "size of hidden state of lstm"},
+    num_layers: {type: "integer", minimum: 0, description: "number of lstm layers"},
+    use_embedding: {type: "boolean", description: "whether to use embedding"},
+    embedding_size: {type: "integer", minimum: 1, description: "size of embedding"},
+    learning_rate: {type: "number", minimum: 0, description: "learning rate"},
+    train_keep_prob: {type: "number", minimum: 0, maximum: 1, description: "dropout rate during training"},
+    max_steps: {type: "integer", minimum: 1, description: "max steps to train"},
+    save_every_n: {type: "integer", minimum: 1, description: "save the model every n steps"},
+    log_every_n: {type: "integer", minimum: 1, description: "log to the screen every n steps"},
+    max_vocab: {type: "integer", minimum: 1, description: "max char number"}
+  }
+}
+
+const ajv = new Ajv({allErrors: true});
+const validator = ajv.compile(trainOptionsSchema)
+
 /**
  * Prepare model dir, create log file and try to train on _maybe_ existing train file
  * @param submissionId {String}
- * @return {void}
+ * @param [params] {Object}
+ * @return {Object} errors
  */
-function trainModel(submissionId) {
+function trainModel(submissionId, params) {
 
-  if (!submissionId) return;
+  if (!submissionId) return {"submissionId": "required"};
+
+  let args = {
+    num_seqs: 32,
+    num_steps: 50,
+    lstm_size: 128,
+    num_layers: 2,
+    use_embedding: false,
+    embedding_size: 128,
+    learning_rate: 0.001,
+    train_keep_prob: 0.5,
+    max_steps: 1000,
+    save_every_n: 1000,
+    log_every_n: 100,
+    max_vocab: 3500
+  }
+  if (typeof params === "object") {
+    if (validator(params)) {
+      Object.assign(args, params)
+    } else {
+      console.log(validator.errors)
+    }
+  }
 
   const folderPath = path.join(UPLOADS_PATH, submissionId)
   const trainFilePath = path.join(folderPath, TRAIN_FILENAME)
@@ -42,20 +90,26 @@ function trainModel(submissionId) {
     --learning_rate 0.01 \
     --max_steps 20000
   */
-  const subprocess = spawn('python', [
+  let spawnArgs = [
     path.join(GENERATOR_PATH, 'train.py'),
-    "--input_file", trainFilePath,
-    "--name", submissionId,
-    "--num_steps", "50",
-    "--num_seqs", "32",
-    "--learning_rate", "0.01",
-    "--max_steps", "100"
-  ], {
+    "--input_file", trainFilePath, // utf8 encoded text file
+    "--name", submissionId // name of the model
+    // TODO add whitelist file
+  ]
+  Object.keys(args).forEach((k) => {
+    if (k != null && args[k] != null) {
+      spawnArgs.push(`--${k}`)
+      spawnArgs.push(args[k])
+    }
+  })
+  const subprocess = spawn('python', spawnArgs, {
     stdio: ['ignore', out, err]
   });
   fs.writeFileSync(trainPidPath, subprocess.pid)
   subprocess.on("error", () => rimraf.sync(trainPidPath))
   subprocess.on("exit", () => rimraf.sync(trainPidPath))
+
+  return null
 }
 
 /**
@@ -101,6 +155,7 @@ function sampleModel(submissionId) {
 }
 
 module.exports = {
+  trainOptionsSchema,
   trainModel,
   sampleModel
 }
