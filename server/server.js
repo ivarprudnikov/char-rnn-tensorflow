@@ -3,10 +3,11 @@ const app = express()
 const Busboy = require('busboy')
 const uuidv1 = require('uuid/v1') // timestamp based
 const path = require('path')
-const util = require('util')
 const fs = require('fs')
 const mkdirp = require('mkdirp')
 const {sampleModel, trainModel} = require("./generator");
+const multer  = require('multer')
+const multerUpload = multer()
 const {
   TRAIN_FILENAME,
   TRAIN_PID_FILENAME,
@@ -38,8 +39,13 @@ app.get('/train', function (req, res) {
 
 /**
  * Upload save text file and spawn training script
+ * Here set multerUpload.none() as it is used only for
+ * form field parsing
+ * Busboy will handle file uploads
  */
-app.post('/train', function (req, res) {
+app.post('/train', multerUpload.none(), function (req, res) {
+
+  // TODO validate req.body fields
 
   const id = uuidv1()
   const busboy = new Busboy({

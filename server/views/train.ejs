@@ -12,22 +12,131 @@
   <div class="row">
 
     <form action="train" method="post" enctype="multipart/form-data"
-          class="mt-5 col-sm-8 offset-sm-2 col-lg-6 offset-lg-3">
+          class="my-5 col-sm-8 offset-sm-2 col-lg-6 offset-lg-3">
 
       <h1 class="text-center mb-5">Train new</h1>
 
-      <div class="form-group">
-        <label for="num_seqs">Number of seqs in one batch</label>
-        <input name="num_seqs" type="number" id="num_seqs" class="form-control">
-      </div>
+      <% if(locals.errors != null){ %>
+        <p class="alert alert-danger">
+          Please fix form errors
+        </p>
+      <% } %>
 
-      <div class="form-group">
-        <label for="customFile">Choose file</label>
-        <input name="file" type="file" id="customFile">
-        <small class="form-text text-muted">
-          File should be plain/text containing data you want to use for training
-        </small>
-      </div>
+      <fieldset>
+        <legend>Training data</legend>
+
+        <div class="form-group">
+          <label for="customFile">Choose file</label>
+          <input name="file" type="file" id="customFile">
+          <small class="form-text text-muted">
+            File should be plain/text containing data you want to use for training
+          </small>
+        </div>
+      </fieldset>
+
+      <hr>
+
+      <fieldset>
+        <legend>Training options</legend>
+
+        <div class="form-group row">
+          <label for="num_seqs" class="col-sm-6 col-form-label">Number of seqs in one batch</label>
+          <div class="col-sm-6">
+            <input name="num_seqs" placeholder="Default: 32" type="number" id="num_seqs" class="form-control" min="1">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label for="num_steps" class="col-sm-6 col-form-label">Length of one seq</label>
+          <div class="col-sm-6">
+            <input name="num_steps" placeholder="Default: 50" type="number" id="num_steps" class="form-control" min="1">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label for="lstm_size" class="col-sm-6 col-form-label">Size of hidden state of LSTM</label>
+          <div class="col-sm-6">
+            <input name="lstm_size" placeholder="Default: 128" type="number" id="lstm_size" class="form-control" min="0">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label for="num_layers" class="col-sm-6 col-form-label">Number of LSTM layers</label>
+          <div class="col-sm-6">
+            <input name="num_layers" placeholder="Default: 2" type="number" id="num_layers" class="form-control" min="0">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label for="use_embedding" class="col-sm-6 col-form-label">Use embedding?</label>
+          <div class="col-sm-6">
+            <div class="col-sm-10">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="use_embedding" id="use_embedding1" value="true">
+                <label class="form-check-label" for="use_embedding1">
+                  Yes
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="use_embedding" id="use_embedding2" value="false" checked>
+                <label class="form-check-label" for="use_embedding2">
+                  No (default)
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label for="embedding_size" class="col-sm-6 col-form-label">Size of embedding</label>
+          <div class="col-sm-6">
+            <input name="embedding_size" placeholder="Default: 128" type="number" id="embedding_size" class="form-control" min="1">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label for="learning_rate" class="col-sm-6 col-form-label">Learning rate</label>
+          <div class="col-sm-6">
+            <input name="learning_rate" placeholder="Default: 0.001" type="number" id="learning_rate" class="form-control" min="0" max="1">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label for="train_keep_prob" class="col-sm-6 col-form-label">Dropout rate during training</label>
+          <div class="col-sm-6">
+            <input name="train_keep_prob" placeholder="Default: 0.5" type="number" id="train_keep_prob" class="form-control" min="0" max="1">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label for="max_steps" class="col-sm-6 col-form-label">Max steps to train</label>
+          <div class="col-sm-6">
+            <input name="max_steps" placeholder="Default: 1000" type="number" id="max_steps" class="form-control" min="1">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label for="save_every_n" class="col-sm-6 col-form-label">Save the model every n steps</label>
+          <div class="col-sm-6">
+            <input name="save_every_n" placeholder="Default: 1000" type="number" id="save_every_n" class="form-control" min="1">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label for="log_every_n" class="col-sm-6 col-form-label">Log to the screen every n steps</label>
+          <div class="col-sm-6">
+            <input name="log_every_n" placeholder="Default: 100" type="number" id="log_every_n" class="form-control" min="1">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label for="max_vocab" class="col-sm-6 col-form-label">Max char number from training file</label>
+          <div class="col-sm-6">
+            <input name="max_vocab" placeholder="Default: 3500" type="number" id="max_vocab" class="form-control" min="1">
+          </div>
+        </div>
+
+      </fieldset>
 
       <button type="submit" class="btn btn-primary">Upload</button>
     </form>
