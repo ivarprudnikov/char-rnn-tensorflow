@@ -17,12 +17,23 @@ and generate text. Read about it in [`server/README.md`](server/README.md)
 
 ## Development
 
-Both `server` and `generator` are wrapped with Docker.
+Both `server` and `generator` are expected to run in Docker  
+and running image locally would replicate production environment.
+You could also run server directly but then need to be sure that all
+python dependencies are installed locally. 
 
-### Build and run
+### a) Build and run Docker image
 
 - To `build` container image: `docker build -t <some_name> .`
 - To `run` built image: `docker run -p 8080:8080 -ti --rm <some_name>`
+
+### b) Run using virtualenv
+
+- Create new environment in dir `venv` - `$ virtualenv -p python3 venv`
+- Activate environment - `$ source venv/bin/activate`
+- Install dependencies - `(venv) $ pip install -r requirements.txt`
+- Use _Node.js_ `v10` `(venv) $ nvm use 10`
+- `run` server `(venv) $ node server/server`
 
 ## Your feedback
 
