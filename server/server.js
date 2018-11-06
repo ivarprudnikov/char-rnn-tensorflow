@@ -5,9 +5,10 @@ const uuidv1 = require('uuid/v1') // timestamp based
 const path = require('path')
 const fs = require('fs')
 const mkdirp = require('mkdirp')
-const {sampleModel, trainModel} = require("./generator");
+const {sampleModel, trainModel, chackTrainParams} = require("./generator");
 const multer  = require('multer')
 const multerUpload = multer()
+const util = require("util")
 const {
   TRAIN_FILENAME,
   TRAIN_PID_FILENAME,
@@ -25,6 +26,16 @@ app.set('view engine', 'ejs');
 app.use('/static', express.static(path.join(__dirname, PUBLIC_DIR)))
 // create directory for uploads if does not exist
 mkdirp.sync(UPLOADS_PATH)
+
+// HTML Form helper
+app.use(function (req, res, next) {
+  res.locals.fieldErr = (key) => {
+    const resLocals = res.locals || {}
+    const errors = resLocals.errors || {}
+    return errors[key];
+  }
+  next();
+});
 
 // Routes
 //////////////////////////////////////////////////////////////////////
@@ -45,7 +56,12 @@ app.get('/train', function (req, res) {
  */
 app.post('/train', multerUpload.none(), function (req, res) {
 
-  // TODO validate req.body fields
+  let params = req.body
+  let errors = chackTrainParams(params)
+  if (errors) {
+    res.render('train', Object.assign(res.locals, {errors: errors}))
+    return
+  }
 
   const id = uuidv1()
   const busboy = new Busboy({
@@ -58,17 +74,12 @@ app.post('/train', multerUpload.none(), function (req, res) {
   let fileStream = null
   let filePath = null
   let folderPath = path.join(UPLOADS_PATH, id)
-  let params = {}
 
   busboy.on('file', (fieldName, file, fileName, encoding, mimetype) => {
     // TODO upload to AWS S3 id folder
     fs.mkdirSync(folderPath)
     filePath = path.join(folderPath, TRAIN_FILENAME)
     fileStream = file.pipe(fs.createWriteStream(filePath))
-  });
-
-  busboy.on('field', function(fieldname, val, fieldnameTruncated, valTruncated, encoding, mimetype) {
-    params[fieldname] = val
   });
 
   busboy.on('finish', () => {

@@ -16,8 +16,8 @@
 
       <h1 class="text-center mb-5">Train new</h1>
 
-      <% if(locals.errors != null){ %>
-        <p class="alert alert-danger">
+      <% if(locals.errors){ %>
+        <p class="alert alert-warning">
           Please fix form errors
         </p>
       <% } %>
@@ -42,7 +42,10 @@
         <div class="form-group row">
           <label for="num_seqs" class="col-sm-6 col-form-label">Number of seqs in one batch</label>
           <div class="col-sm-6">
-            <input name="num_seqs" placeholder="Default: 32" type="number" id="num_seqs" class="form-control" min="1">
+            <input name="num_seqs" placeholder="Default: 32" type="number" id="num_seqs"
+                   class="form-control <%if(fieldErr("num_seqs")){%>is-invalid<%}%>"
+                   min="1">
+            <% if(fieldErr("num_seqs")){%><div class="invalid-feedback"><%=fieldErr("num_seqs")%></div><%} %>
           </div>
         </div>
 

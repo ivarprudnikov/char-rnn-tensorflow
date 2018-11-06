@@ -35,8 +35,20 @@ const trainOptionsSchema = {
   additionalProperties: false
 }
 
-const ajv = new Ajv({allErrors: true});
+const ajv = new Ajv({allErrors: true, coerceTypes: true, removeAdditional: true});
 const validator = ajv.compile(trainOptionsSchema)
+
+function chackTrainParams(params){
+  if (validator(params)) {
+    return null
+  }
+  let errors = {}
+  validator.errors.forEach((err) => {
+    let keyWithoutTrailingDot = err.dataPath.replace(/^\./,"");
+    errors[keyWithoutTrailingDot] = err.message
+  })
+  return errors
+}
 
 /**
  * Prepare model dir, create log file and try to train on _maybe_ existing train file
@@ -63,10 +75,11 @@ function trainModel(submissionId, params) {
     max_vocab: 3500
   }
   if (typeof params === "object") {
-    if (validator(params)) {
-      Object.assign(args, params)
-    } else {
+    let errors = chackTrainParams(params)
+    if (errors) {
       console.log(validator.errors)
+    } else {
+      Object.assign(args, params)
     }
   }
 
@@ -156,6 +169,7 @@ function sampleModel(submissionId) {
 
 module.exports = {
   trainOptionsSchema,
+  chackTrainParams,
   trainModel,
   sampleModel
 }
