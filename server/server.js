@@ -116,7 +116,7 @@ app.post('/train', multerUpload.none(), function (req, res) {
         res.locals.id = id
         res.locals.folder = folderPath
         res.locals.file = filePath
-        res.render('uploaded');
+        res.redirect("/models/" + id)
       })
       fileStream.on('error', () => {
         res.render('train', Object.assign(res.locals, {
