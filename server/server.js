@@ -8,7 +8,6 @@ const mkdirp = require('mkdirp')
 const {sampleModel, trainModel, chackTrainParams} = require("./generator");
 const multer  = require('multer')
 const multerUpload = multer()
-const util = require("util")
 const {
   TRAIN_FILENAME,
   TRAIN_PID_FILENAME,
@@ -34,6 +33,11 @@ app.use(function (req, res, next) {
     const errors = resLocals.errors || {}
     return errors[key];
   }
+  res.locals.fieldData = (key) => {
+    const resLocals = res.locals || {}
+    const data = resLocals.data || {}
+    return data[key];
+  }
   next();
 });
 
@@ -56,10 +60,21 @@ app.get('/train', function (req, res) {
  */
 app.post('/train', multerUpload.none(), function (req, res) {
 
-  let params = req.body
+  // filter out empty values
+  let params = Object.keys(req.body).reduce((memo, val) => {
+    if(req.body[val] != null && req.body[val] !== "") {
+      memo[val] = req.body[val]
+    }
+    return memo
+  }, {})
+
   let errors = chackTrainParams(params)
   if (errors) {
-    res.render('train', Object.assign(res.locals, {errors: errors}))
+    res.render('train', Object.assign(res.locals, {
+      error: "Found " + Object.keys(errors).length + " errors",
+      errors: errors,
+      data: params
+    }))
     return
   }
 
@@ -86,8 +101,13 @@ app.post('/train', multerUpload.none(), function (req, res) {
     res.set({Connection: 'close'});
 
     if (!fileStream) {
-      res.locals.error = "Cannot save given training data";
-      res.render('train');
+      res.render('train', Object.assign(res.locals, {
+        error: "Cannot save given training data",
+        errors: {
+          "file": "Cannot save given training data"
+        },
+        data: params
+      }));
     } else {
       fileStream.on('finish', () => {
 
@@ -99,8 +119,13 @@ app.post('/train', multerUpload.none(), function (req, res) {
         res.render('uploaded');
       })
       fileStream.on('error', () => {
-        res.locals.error = "Error occurred while writing file";
-        res.render('train');
+        res.render('train', Object.assign(res.locals, {
+          error: "Error occurred while saving file",
+          errors: {
+            "file": "Error occurred while saving file"
+          },
+          data: params
+        }));
       })
     }
   })
