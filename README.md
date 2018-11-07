@@ -29,9 +29,15 @@ python dependencies are installed locally.
 
 ### b) Run using virtualenv
 
+*New virtualenv*
+
 - Create new environment in dir `venv` - `$ virtualenv -p python3 venv`
 - Activate environment - `$ source venv/bin/activate`
 - Install dependencies - `(venv) $ pip install -r requirements.txt`
+
+*Existing virtualenv*
+
+- Activate environment - `$ source venv/bin/activate`
 - Use _Node.js_ `v10` `(venv) $ nvm use 10`
 - `run` server `(venv) $ node server/server`
 
