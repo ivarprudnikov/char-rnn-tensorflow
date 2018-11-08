@@ -6,8 +6,16 @@ const path = require('path')
 const fs = require('fs')
 const mkdirp = require('mkdirp')
 const {sampleModel, trainModel, chackTrainParams} = require("./generator");
-const multer  = require('multer')
+const multer = require('multer')
 const multerUpload = multer()
+const mysql = require('mysql')
+var pool = mysql.createPool({
+  connectionLimit: 10,
+  host: 'localhost',
+  user: 'root',
+  password: '',
+  database: 'rnn_generator'
+});
 const {
   TRAIN_FILENAME,
   TRAIN_PID_FILENAME,
@@ -48,21 +56,26 @@ app.get('/', function (req, res) {
   res.render('index')
 })
 
-app.get('/train', function (req, res) {
-  res.render('train')
+app.get('/model', function (req, res) {
+  let limit = Math.min(parseInt(req.query.max) || 10, 100)
+  let offset = parseInt(req.query.offset) || 0
+  pool.query("select * from model order by updated_at desc limit ? offset ?",
+    [limit, offset],
+    (error, results, fields) => {
+      if (error) throw error
+      res.render('models', {models: results})
+    })
 })
 
-/**
- * Upload save text file and spawn training script
- * Here set multerUpload.none() as it is used only for
- * form field parsing
- * Busboy will handle file uploads
- */
-app.post('/train', multerUpload.none(), function (req, res) {
+app.get('/model/create', function (req, res) {
+  res.render('create')
+})
+
+app.post('/model/create', multerUpload.none(), function (req, res) {
 
   // filter out empty values
   let params = Object.keys(req.body).reduce((memo, val) => {
-    if(req.body[val] != null && req.body[val] !== "") {
+    if (req.body[val] != null && req.body[val] !== "") {
       memo[val] = req.body[val]
     }
     return memo
@@ -70,7 +83,7 @@ app.post('/train', multerUpload.none(), function (req, res) {
 
   let errors = chackTrainParams(params)
   if (errors) {
-    res.render('train', Object.assign(res.locals, {
+    res.render('create', Object.assign(res.locals, {
       error: "Found " + Object.keys(errors).length + " errors",
       errors: errors,
       data: params
@@ -78,87 +91,124 @@ app.post('/train', multerUpload.none(), function (req, res) {
     return
   }
 
+  res.set({Connection: 'close'});
   const id = uuidv1()
-  const busboy = new Busboy({
-    headers: req.headers,
-    limits: {
-      fileSize: 1024 * 50, // bytes
-      files: 1 // only one file per request
-    }
-  })
-  let fileStream = null
-  let filePath = null
-  let folderPath = path.join(UPLOADS_PATH, id)
 
-  busboy.on('file', (fieldName, file, fileName, encoding, mimetype) => {
-    // TODO upload to AWS S3 id folder
-    fs.mkdirSync(folderPath)
-    filePath = path.join(folderPath, TRAIN_FILENAME)
-    fileStream = file.pipe(fs.createWriteStream(filePath))
-  });
-
-  busboy.on('finish', () => {
-    res.set({Connection: 'close'});
-
-    if (!fileStream) {
-      res.render('train', Object.assign(res.locals, {
-        error: "Cannot save given training data",
-        errors: {
-          "file": "Cannot save given training data"
-        },
-        data: params
-      }));
-    } else {
-      fileStream.on('finish', () => {
-
-        trainModel(id + "", params)
-
-        res.locals.id = id
-        res.locals.folder = folderPath
-        res.locals.file = filePath
-        res.redirect("/models/" + id)
-      })
-      fileStream.on('error', () => {
-        res.render('train', Object.assign(res.locals, {
-          error: "Error occurred while saving file",
-          errors: {
-            "file": "Error occurred while saving file"
-          },
-          data: params
-        }));
-      })
-    }
-  })
-
-  req.pipe(busboy)
+  pool.query("INSERT INTO model SET ?", {
+      id: id,
+      train_params: JSON.stringify(params),
+      has_data: 0,
+      is_in_progress: 0
+    },
+    (error, results, fields) => {
+      if (error) throw error
+      res.redirect("/model/" + id)
+    })
 })
 
-app.get('/models', function (req, res) {
-  const folders = fs.readdirSync(UPLOADS_PATH)
-  res.locals.models = (folders || []).map((folderName) => {
-    return {
-      id: folderName,
-      status: fs.existsSync(path.join(UPLOADS_PATH, folderName, TRAIN_PID_FILENAME)) ? STATUS_IN_PROGRESS : STATUS_STOPPED
-    }
-  });
-  res.render('models')
-})
-
-app.get('/models/:id', function (req, res) {
+app.get('/model/:id', function (req, res) {
   const id = req.params.id
-  res.locals.id = id
-  const logFile = path.join(UPLOADS_PATH, id, LOG_FILENAME)
-  const trainPidFile = path.join(UPLOADS_PATH, id, TRAIN_PID_FILENAME)
-  if (!fs.existsSync(logFile)) {
+  if (!id) {
     res.render('404')
     return
   }
-  res.locals.log = fs.readFileSync(logFile)
-  res.locals.status = fs.existsSync(trainPidFile) ? STATUS_IN_PROGRESS : STATUS_STOPPED
-  res.render('model')
+
+  pool.query("select * from model where id = ?",
+    [id],
+    (error, results, fields) => {
+      if (error) throw error
+      if (!results.length) {
+        res.render('404')
+        return
+      }
+      res.render('modelInstance', {model: results[0]})
+    })
 })
 
-app.get('/models/:id/sample', function (req, res) {
+app.get('/model/:id/upload', function (req, res) {
+  res.render('upload', {id: req.params.id})
+})
+
+/**
+ * Upload save text file and spawn training script
+ */
+app.post('/model/:id/upload', function (req, res) {
+
+  const id = req.params.id
+  pool.query("select * from model where id = ?",
+    [id],
+    (error, results, fields) => {
+      if (error) throw error
+      if (!results.length) {
+        res.render('404')
+        return
+      }
+
+      _upload(results[0])
+
+    })
+
+  function _upload(model) {
+
+    const busboy = new Busboy({
+      headers: req.headers,
+      limits: {
+        fileSize: 1024 * 50, // bytes
+        files: 1 // only one file per request
+      }
+    })
+    let fileStream = null
+    let filePath = null
+    let folderPath = path.join(UPLOADS_PATH, model.id)
+
+    busboy.on('file', (fieldName, file, fileName, encoding, mimetype) => {
+      fs.mkdirSync(folderPath)
+      filePath = path.join(folderPath, TRAIN_FILENAME)
+      fileStream = file.pipe(fs.createWriteStream(filePath))
+    });
+
+    busboy.on('finish', () => {
+      res.set({Connection: 'close'});
+
+      if (!fileStream) {
+        res.render('upload', Object.assign(res.locals, {
+          error: "Cannot save given training data",
+          errors: {
+            "file": "Cannot save given training data"
+          }
+        }));
+      } else {
+        fileStream.on('finish', () => {
+          const params = JSON.parse(model.train_params || "{}")
+          trainModel(model.id, params)
+          _setInProgress(model, () => res.redirect("/model/" + model.id))
+        })
+        fileStream.on('error', () => {
+          res.render('upload', Object.assign(res.locals, {
+            error: "Error occurred while saving file",
+            errors: {
+              "file": "Error occurred while saving file"
+            }
+          }));
+        })
+      }
+    })
+
+    req.pipe(busboy)
+  }
+
+  function _setInProgress(model, cb) {
+    pool.query("UPDATE model SET ? WHERE id=?", [{
+        has_data: 1,
+        is_in_progress: 1,
+        is_complete: 0,
+      }, model.id],
+      (error, results, fields) => cb())
+  }
+
+})
+
+app.get('/model/:id/sample', function (req, res) {
   const id = req.params.id
   if (!id) {
     res.status(400).send({error: "Unrecognized ID"})

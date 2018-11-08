@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head>
+  <%- include('head'); %>
+</head>
+<body>
+
+<%- include('nav'); %>
+
+<main role="main" class="container">
+
+  <div class="row">
+
+    <form action="/model/<%= locals.id || 0 %>/upload" method="post" enctype="multipart/form-data"
+          class="my-3 col-sm-8 offset-sm-2 col-lg-6 offset-lg-3">
+
+      <h1 class="text-center mb-3">Upload training data</h1>
+
+      <% if(locals.errors){ %>
+        <p class="alert alert-warning">
+          Form contains errors
+        </p>
+      <% } %>
+
+      <fieldset>
+        <legend>Training data</legend>
+
+        <div class="form-group row">
+          <label for="customFile" class="col-sm-6 col-form-label">Choose training data file</label>
+          <div class="col-sm-6">
+            <input name="file" type="file" id="customFile"
+              class="form-control-file <% if(fieldErr("file")){ %>is-invalid<% } %>">
+            <% if(fieldErr("file")){ %>
+              <div class="invalid-feedback"><%= fieldErr("file") %></div>
+            <% } %>
+            <small class="form-text text-muted">
+              File should be UTF-8 plain/text containing data you want to use for training. Max 50MB
+            </small>
+          </div>
+        </div>
+      </fieldset>
+
+      <button type="submit" class="btn btn-primary btn-lg">Upload and train</button>
+    </form>
+
+  </div>
+
+</main>
+
+</body>
+</html>

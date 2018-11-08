@@ -15,11 +15,25 @@
       <h1 class="mb-3">Model</h1>
       <dl class="mb-3">
         <dt>ID</dt>
-        <dd><%= id %></dd>
-        <dt>Status</dt>
-        <dd><%= status %></dd>
+        <dd><%= model.id %></dd>
+        <dt>Created at</dt>
+        <dd><%= model.created_at %></dd>
+        <dt>Updated at</dt>
+        <dd><%= model.updated_at %></dd>
+        <dt>Has training data</dt>
+        <dd><%= model.has_data %></dd>
+        <dt>Training in progress</dt>
+        <dd><%= model.is_in_progress %></dd>
+        <dt>Contains trained model</dt>
+        <dd><%= model.is_complete %></dd>
       </dl>
-      <% if(status !== 'In progress'){ %>
+
+      <% if(!model.has_data){ %>
+        <hr class="mb-3">
+        <a class="btn btn-outline-primary" href="/model/<%= model.id %>/upload">Upload training data</a>
+      <% } %>
+
+      <% if(model.is_complete){ %>
         <hr class="mb-3">
         <button id="sampleBtn" type="button" class="btn btn-primary" onclick="generateSample()">Generate sample</button>
         <div id="sample" class="bg-dark text-light p-3 my-3" style="display: none"></div>
@@ -27,7 +41,9 @@
     </div>
     <div class="col-sm-6">
       <h2 class="mb-3">Training log</h2>
-      <pre class="bg-dark text-light p-3"><%= log %></pre>
+      <% if(model.is_complete || model.is_in_progress){ %>
+        <pre class="bg-dark text-light p-3"><%= locals.log %></pre>
+      <% } %>
     </div>
 
   </div>
@@ -41,7 +57,7 @@
 
     $("#sampleBtn").prop("disabled", true )
 
-    $.get("/models/<%= id %>/sample")
+    $.get("/model/<%= model.id %>/sample")
       .done(function (data) {
         $("#sample").text(data)
       })
