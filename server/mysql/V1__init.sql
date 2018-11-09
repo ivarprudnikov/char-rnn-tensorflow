@@ -3,6 +3,7 @@ create table model (
   created_at     timestamp             DEFAULT CURRENT_TIMESTAMP,
   updated_at     timestamp             DEFAULT CURRENT_TIMESTAMP
   ON UPDATE CURRENT_TIMESTAMP,
+  name           varchar(255) not null,
   train_params   json         not null,
   has_data       tinyint      not null default false,
   is_in_progress tinyint      not null default false,

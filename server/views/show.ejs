@@ -9,23 +9,25 @@
 
 <main role="main" class="container">
 
-  <div class="row my-3">
+  <div class="my-3">
 
     <% if(model.is_complete){ %>
-      <button id="sampleBtn" type="button" class="btn btn-primary" onclick="generateSample()">Generate sample</button>
+      <button id="sampleBtn" type="button" class="btn btn-sm btn-primary" onclick="generateSample()">Generate sample</button>
     <% } %>
 
     <% if(!model.has_data){ %>
-      <a class="btn btn-outline-primary" href="/model/<%= model.id %>/upload">Upload training data</a>
+      <a class="btn btn-sm btn-outline-primary" href="/model/<%= model.id %>/upload">Upload training data</a>
     <% } %>
+
+      <a class="btn btn-sm btn-outline-primary" href="/model/<%= model.id %>/options">Update training options</a>
 
     <% if(model.is_in_progress){ %>
       <form action="/model/<%=model.id%>/stop" method="post">
-        <button type="submit" class="btn btn-danger">Stop training</button>
+        <button type="submit" class="btn btn-sm btn-danger">Stop training</button>
       </form>
     <% } else if (model.has_data) { %>
       <form action="/model/<%=model.id%>/start" method="post">
-        <button type="submit" class="btn btn-outline-primary">Start training</button>
+        <button type="submit" class="btn btn-sm btn-outline-primary">Start training</button>
       </form>
     <% } %>
 
@@ -34,10 +36,12 @@
   <div class="row mt-3">
 
     <div class="col-sm-4">
-      <h1 class="mb-3">Model</h1>
+      <h1 class="mb-3">Project: <small><%= model.name %></small></h1>
       <dl class="mb-3">
-        <dt>ID</dt>
+        <dt>Generated ID</dt>
         <dd><%= model.id %></dd>
+        <dt>Name</dt>
+        <dd><%= model.name %></dd>
         <dt>Created at</dt>
         <dd><%= model.created_at %></dd>
         <dt>Updated at</dt>
