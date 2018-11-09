@@ -14,7 +14,7 @@
     <form action="/model/<%= locals.model.id || 0 %>/options" method="post" enctype="multipart/form-data"
           class="my-3 col-sm-8 offset-sm-2 col-lg-6 offset-lg-3">
 
-      <h1 class="text-center mb-3">Update training options</h1>
+      <h1 class="h3 text-center mb-3">Update training options</h1>
 
       <p class="lead">
         Following training options are going to be used to train on uploaded textual data.
@@ -205,7 +205,12 @@
 
       </fieldset>
 
-      <button type="submit" class="btn btn-primary btn-lg">Update</button>
+      <hr class="mt-5">
+
+      <div class="text-right">
+        <a href="/model/<%= locals.model.id %>" class="btn btn-outline-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary">Update</button>
+      </div>
     </form>
 
   </div>

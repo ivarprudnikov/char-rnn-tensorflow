@@ -14,7 +14,7 @@
     <form action="/model/<%= locals.model.id || 0 %>/upload" method="post" enctype="multipart/form-data"
           class="my-3 col-sm-8 offset-sm-2 col-lg-6 offset-lg-3">
 
-      <h1 class="text-center mb-3">Upload training data</h1>
+      <h1 class="h3 text-center mb-3">Upload training data</h1>
 
       <% if(locals.errors){ %>
         <p class="alert alert-warning">
@@ -40,7 +40,13 @@
         </div>
       </fieldset>
 
-      <button type="submit" class="btn btn-primary btn-lg">Upload</button>
+      <hr class="mt-5">
+
+      <div class="text-right">
+        <a href="/model/<%= locals.model.id %>" class="btn btn-outline-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary">Upload</button>
+      </div>
+
     </form>
 
   </div>
