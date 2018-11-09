@@ -58,17 +58,17 @@
       </dl>
 
       <h2>Training options</h2>
-      <pre><%= model.train_params %></pre>
+      <pre><%= JSON.stringify(JSON.parse(model.train_params), null, 2) %></pre>
     </div>
     <div class="col-sm-4">
       <h2 class="mb-3">Training log</h2>
       <% if(model.is_complete || model.is_in_progress){ %>
-        <pre class="bg-dark text-light p-3"><%= locals.log %></pre>
+        <pre class="bg-dark text-light p-3 small"><%= locals.log %></pre>
       <% } %>
     </div>
     <div class="col-sm-4">
       <h2 class="mb-3">Generated sample</h2>
-      <div id="sample" class="bg-dark text-light p-3 my-3" style="display: none"></div>
+      <div id="sample" class="bg-dark text-light p-3 my-3 small" style="display: none"></div>
     </div>
 
   </div>
