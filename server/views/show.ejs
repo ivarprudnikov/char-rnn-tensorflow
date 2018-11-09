@@ -37,6 +37,9 @@
 
     <div class="col-sm-4">
       <h1 class="mb-3">Project: <small><%= model.name %></small></h1>
+
+      <h2>Model properties</h2>
+
       <dl class="mb-3">
         <dt>Generated ID</dt>
         <dd><%= model.id %></dd>
@@ -54,6 +57,8 @@
         <dd><%= model.is_complete %></dd>
       </dl>
 
+      <h2>Training options</h2>
+      <pre><%= model.train_params %></pre>
     </div>
     <div class="col-sm-4">
       <h2 class="mb-3">Training log</h2>
