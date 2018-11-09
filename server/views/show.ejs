@@ -22,11 +22,11 @@
       <a class="btn btn-sm btn-outline-primary" href="/model/<%= model.id %>/options">Update training options</a>
 
     <% if(model.is_in_progress){ %>
-      <form action="/model/<%=model.id%>/stop" method="post">
+      <form class="d-inline-block" action="/model/<%=model.id%>/stop" method="post">
         <button type="submit" class="btn btn-sm btn-danger">Stop training</button>
       </form>
     <% } else if (model.has_data) { %>
-      <form action="/model/<%=model.id%>/start" method="post">
+      <form class="d-inline-block" action="/model/<%=model.id%>/start" method="post">
         <button type="submit" class="btn btn-sm btn-outline-primary">Start training</button>
       </form>
     <% } %>
