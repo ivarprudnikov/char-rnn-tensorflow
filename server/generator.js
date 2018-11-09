@@ -5,6 +5,7 @@ const {Readable} = require("stream")
 const fs = require('fs')
 const path = require('path')
 const Ajv = require('ajv');
+const {setModelTrainingStopped} = require("./db");
 const {
   UPLOADS_PATH,
   TRAIN_FILENAME,
@@ -38,13 +39,13 @@ const trainOptionsSchema = {
 const ajv = new Ajv({allErrors: true, coerceTypes: true, removeAdditional: true});
 const validator = ajv.compile(trainOptionsSchema)
 
-function chackTrainParams(params){
+function chackTrainParams(params) {
   if (validator(params)) {
     return null
   }
   let errors = {}
   validator.errors.forEach((err) => {
-    let keyWithoutTrailingDot = err.dataPath.replace(/^\./,"");
+    let keyWithoutTrailingDot = err.dataPath.replace(/^\./, "");
     errors[keyWithoutTrailingDot] = err.message
   })
   return errors
@@ -92,8 +93,7 @@ function trainModel(submissionId, params, cb) {
 
   const logFilePath = path.join(folderPath, LOG_FILENAME)
   fs.writeFileSync(logFilePath)
-  const out = fs.openSync(logFilePath, 'a');
-  const err = fs.openSync(logFilePath, 'a');
+  const logBinding = fs.openSync(logFilePath, 'a');
   /*
   python train.py \
     --input_file data/shakespeare.txt  \
@@ -116,11 +116,19 @@ function trainModel(submissionId, params, cb) {
     }
   })
   const subprocess = spawn('python', spawnArgs, {
-    stdio: ['ignore', out, err]
+    stdio: ['ignore', logBinding, logBinding]
   });
   fs.writeFileSync(trainPidPath, subprocess.pid)
-  subprocess.on("error", () => rimraf.sync(trainPidPath))
-  subprocess.on("exit", () => rimraf.sync(trainPidPath))
+  subprocess.on("error", () => {
+    rimraf.sync(trainPidPath)
+    setModelTrainingStopped(submissionId, () => {
+    })
+  })
+  subprocess.on("exit", () => {
+    rimraf.sync(trainPidPath)
+    setModelTrainingStopped(submissionId, () => {
+    })
+  })
 
   return cb(null, subprocess);
 }

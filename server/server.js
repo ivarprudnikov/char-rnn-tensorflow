@@ -8,14 +8,8 @@ const mkdirp = require('mkdirp')
 const {sampleModel, trainModel, chackTrainParams} = require("./generator");
 const multer = require('multer')
 const multerUpload = multer()
-const mysql = require('mysql')
-var pool = mysql.createPool({
-  connectionLimit: 10,
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'rnn_generator'
-});
+const {list, insertModel, findModel, updateModel, setModelHasData, setModelTrainingStarted, setModelTrainingStopped} = require('./db')
+
 const {
   TRAIN_FILENAME,
   LOG_FILENAME,
@@ -46,33 +40,8 @@ app.use(function (req, res, next) {
   next();
 });
 
-// METHODS TODO: move to separate service
+// METHODS
 //////////////////////////////////////////////////////////////////////
-
-function _updateModel(model, cb) {
-  pool.query("UPDATE model SET ? WHERE id=?", [model, model.id], (error, results, fields) => {
-    if (error) throw error
-    cb(results)
-  })
-}
-
-function _updateState(id, pid, cb) {
-  pool.query("UPDATE model SET ? WHERE id=?", [{
-    has_data: 1,
-    is_in_progress: pid ? 1 : 0,
-    is_complete: 0,
-    training_pid: pid
-  }, id], cb)
-}
-
-function _findModel(id, cb) {
-  pool.query("select * from model where id = ?",
-    [id],
-    (error, results, fields) => {
-      if (error) throw error
-      cb(results && results[0])
-    })
-}
 
 function checkPathParamSet(paramName) {
   return function (req, res, next) {
@@ -86,7 +55,7 @@ function checkPathParamSet(paramName) {
 
 function loadInstanceById() {
   return function (req, res, next) {
-    _findModel(req.params.id, (instance) => {
+    findModel(req.params.id, (instance) => {
       if (!instance) {
         res.render('404')
       } else {
@@ -107,12 +76,8 @@ app.get('/', function (req, res) {
 app.get('/model', function (req, res) {
   let limit = Math.min(parseInt(req.query.max) || 10, 100)
   let offset = parseInt(req.query.offset) || 0
-  pool.query("select * from model order by updated_at desc limit ? offset ?",
-    [limit, offset],
-    (error, results, fields) => {
-      if (error) throw error
-      res.render('list', Object.assign(res.locals, {models: results}))
-    })
+
+  list(limit, offset, (results) => res.render('list', Object.assign(res.locals, {models: results})))
 })
 
 app.get('/model/create', function (req, res) {
@@ -136,15 +101,11 @@ app.post('/model/create', multerUpload.none(), function (req, res) {
   res.set({Connection: 'close'});
   const id = uuidv1()
 
-  pool.query("INSERT INTO model SET ?", {
-      id: id,
-      name: name,
-      train_params: "{}"
-    },
-    (error, results, fields) => {
-      if (error) throw error
-      res.redirect("/model/" + id)
-    })
+  insertModel( {
+    id: id,
+    name: name,
+    train_params: "{}"
+  }, () => res.redirect("/model/" + id))
 })
 
 app.get('/model/:id', checkPathParamSet("id"), loadInstanceById(), function (req, res) {
@@ -186,8 +147,7 @@ app.post('/model/:id/options', checkPathParamSet("id"), loadInstanceById(), mult
     return
   }
 
-  _updateModel(Object.assign(model, {train_params: JSON.stringify(params)}), () => res.redirect("/model/" + model.id))
-
+  updateModel(model.id, {train_params: JSON.stringify(params)}, () => res.redirect("/model/" + model.id))
 })
 
 app.get('/model/:id/upload', checkPathParamSet("id"), loadInstanceById(), function (req, res) {
@@ -212,7 +172,7 @@ app.post('/model/:id/upload', checkPathParamSet("id"), loadInstanceById(), funct
   let filePath = null
   let folderPath = path.join(UPLOADS_PATH, model.id)
 
-  busboy.on('file', (fieldName, file, fileName, encoding, mimetype) => {
+  busboy.on('file', (fieldName, file, fileName) => {
     if (fileName) {
       fs.mkdirSync(folderPath)
       filePath = path.join(folderPath, TRAIN_FILENAME)
@@ -233,7 +193,7 @@ app.post('/model/:id/upload', checkPathParamSet("id"), loadInstanceById(), funct
       }));
     } else {
       fileStream.on('finish', () => {
-        _updateState(model.id, null, () => res.redirect("/model/" + model.id))
+        setModelHasData(model.id, true, () => res.redirect("/model/" + model.id))
       })
       fileStream.on('error', () => {
         res.render('upload', Object.assign(res.locals, {
@@ -261,9 +221,9 @@ app.post('/model/:id/start', checkPathParamSet("id"), loadInstanceById(), functi
   trainModel(model.id, params, (err, process) => {
     if (err) {
       console.log(err)
-      _updateState(model.id, null, () => res.redirect("/model/" + model.id))
+      setModelTrainingStopped(model.id, () => res.redirect("/model/" + model.id))
     } else {
-      _updateState(model.id, process.pid, () => res.redirect("/model/" + model.id))
+      setModelTrainingStarted(model.id, process.pid, () => res.redirect("/model/" + model.id))
     }
   })
 })
@@ -275,11 +235,7 @@ app.post('/model/:id/stop', checkPathParamSet("id"), loadInstanceById(), functio
     process.kill(model.training_pid)
   }
 
-  _updateModel(Object.assign(model, {
-    training_pid: null,
-    is_in_progress: 0,
-    is_complete: 1 // TODO verify if still useful
-  }), () => res.redirect("/model/" + model.id))
+  setModelTrainingStopped(model.id, () => res.redirect("/model/" + model.id))
 })
 
 app.get('/model/:id/sample', checkPathParamSet("id"), loadInstanceById(), function (req, res) {
