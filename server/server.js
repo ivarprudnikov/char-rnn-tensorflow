@@ -49,6 +49,17 @@ app.use(function (req, res, next) {
   next();
 });
 
+// METHODS
+
+function _updateState(id, pid, cb) {
+  pool.query("UPDATE model SET ? WHERE id=?", [{
+    has_data: 1,
+    is_in_progress: pid ? 1 : 0,
+    is_complete: 0,
+    training_pid: pid
+  }, id], cb)
+}
+
 // Routes
 //////////////////////////////////////////////////////////////////////
 
@@ -181,16 +192,7 @@ app.post('/model/:id/upload', function (req, res) {
         }));
       } else {
         fileStream.on('finish', () => {
-          const params = JSON.parse(model.train_params || "{}")
-          trainModel(model.id, params, (err, process) => {
-            if (err) {
-              console.log(err)
-              _updateState(model.id, null, () => res.redirect("/model/" + model.id))
-            } else {
-              _updateState(model.id, process.pid, () => res.redirect("/model/" + model.id))
-            }
-          })
-
+          _updateState(model.id, null, () => res.redirect("/model/" + model.id))
         })
         fileStream.on('error', () => {
           res.render('upload', Object.assign(res.locals, {
@@ -205,16 +207,40 @@ app.post('/model/:id/upload', function (req, res) {
 
     req.pipe(busboy)
   }
+})
 
-  function _updateState(id, pid, cb) {
-    pool.query("UPDATE model SET ? WHERE id=?", [{
-      has_data: 1,
-      is_in_progress: pid ? 1 : 0,
-      is_complete: 0,
-      training_pid: pid
-    }, id], cb)
+app.post('/model/:id/start', function (req, res) {
+
+  const id = req.params.id
+  pool.query("select * from model where id = ?",
+    [id],
+    (error, results, fields) => {
+      if (error) throw error
+      if (!results.length) {
+        res.render('404')
+        return
+      }
+
+      _start(results[0], () => res.redirect("/model/" + results[0].id))
+
+    })
+
+  function _start(model, cb) {
+
+    if (model.training_pid) {
+      return cb()
+    }
+
+    const params = JSON.parse(model.train_params || "{}")
+    trainModel(model.id, params, (err, process) => {
+      if (err) {
+        console.log(err)
+        _updateState(model.id, null, () => res.redirect("/model/" + model.id))
+      } else {
+        _updateState(model.id, process.pid, () => res.redirect("/model/" + model.id))
+      }
+    })
   }
-
 })
 
 app.post('/model/:id/stop', function (req, res) {

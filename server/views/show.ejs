@@ -23,6 +23,10 @@
       <form action="/model/<%=model.id%>/stop" method="post">
         <button type="submit" class="btn btn-danger">Stop training</button>
       </form>
+    <% } else if (model.has_data) { %>
+      <form action="/model/<%=model.id%>/start" method="post">
+        <button type="submit" class="btn btn-outline-primary">Start training</button>
+      </form>
     <% } %>
 
   </div>
