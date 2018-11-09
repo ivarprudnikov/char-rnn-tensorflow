@@ -162,9 +162,11 @@ app.post('/model/:id/upload', function (req, res) {
     let folderPath = path.join(UPLOADS_PATH, model.id)
 
     busboy.on('file', (fieldName, file, fileName, encoding, mimetype) => {
-      fs.mkdirSync(folderPath)
-      filePath = path.join(folderPath, TRAIN_FILENAME)
-      fileStream = file.pipe(fs.createWriteStream(filePath))
+      if (fileName) {
+        fs.mkdirSync(folderPath)
+        filePath = path.join(folderPath, TRAIN_FILENAME)
+        fileStream = file.pipe(fs.createWriteStream(filePath))
+      }
     });
 
     busboy.on('finish', () => {
