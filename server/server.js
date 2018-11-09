@@ -111,7 +111,7 @@ app.get('/model', function (req, res) {
     [limit, offset],
     (error, results, fields) => {
       if (error) throw error
-      res.render('list', {models: results})
+      res.render('list', Object.assign(res.locals, {models: results}))
     })
 })
 
@@ -151,17 +151,17 @@ app.get('/model/:id', checkPathParamSet("id"), loadInstanceById(), function (req
   if (!req.instance)
     res.render('404')
   else
-    res.render('show', {model: req.instance})
+    res.render('show', Object.assign(res.locals, {model: req.instance}))
 })
 
 app.get('/model/:id/options', checkPathParamSet("id"), loadInstanceById(), function (req, res) {
   if (!req.instance)
     res.render('404')
   else
-    res.render('training_options', {
+    res.render('training_options', Object.assign(res.locals, {
       data: JSON.parse(req.instance.train_params),
       model: req.instance
-    })
+    }))
 })
 
 app.post('/model/:id/options', checkPathParamSet("id"), loadInstanceById(), multerUpload.none(), function (req, res) {
@@ -192,14 +192,12 @@ app.post('/model/:id/options', checkPathParamSet("id"), loadInstanceById(), mult
     return
   }
 
-  // TODO: params not saved
-
   _updateModel(Object.assign(model, {train_params: JSON.stringify(params)}), () => res.redirect("/model/" + model.id))
 
 })
 
 app.get('/model/:id/upload', checkPathParamSet("id"), loadInstanceById(), function (req, res) {
-  res.render('upload', {model: req.instance})
+  res.render('upload', Object.assign(res.locals, {model: req.instance}))
 })
 
 /**
