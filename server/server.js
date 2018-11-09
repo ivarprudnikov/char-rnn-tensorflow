@@ -148,28 +148,22 @@ app.post('/model/create', multerUpload.none(), function (req, res) {
 })
 
 app.get('/model/:id', checkPathParamSet("id"), loadInstanceById(), function (req, res) {
-  if (!req.instance)
-    res.render('404')
-  else
-    res.render('show', Object.assign(res.locals, {model: req.instance}))
+  const model = req.instance
+  const logFile = path.join(UPLOADS_PATH, model.id, LOG_FILENAME)
+  if (fs.existsSync(logFile)) {
+    res.locals.log = fs.readFileSync(logFile)
+  }
+  res.render('show', Object.assign(res.locals, {model: req.instance}))
 })
 
 app.get('/model/:id/options', checkPathParamSet("id"), loadInstanceById(), function (req, res) {
-  if (!req.instance)
-    res.render('404')
-  else
-    res.render('training_options', Object.assign(res.locals, {
-      data: JSON.parse(req.instance.train_params),
-      model: req.instance
-    }))
+  res.render('training_options', Object.assign(res.locals, {
+    data: JSON.parse(req.instance.train_params),
+    model: req.instance
+  }))
 })
 
 app.post('/model/:id/options', checkPathParamSet("id"), loadInstanceById(), multerUpload.none(), function (req, res) {
-
-  if (!req.instance) {
-    res.render('404')
-    return
-  }
 
   let model = req.instance
 
