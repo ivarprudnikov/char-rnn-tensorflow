@@ -28,7 +28,7 @@
         <div class="form-group row">
           <label for="customFile" class="col-sm-6 col-form-label">Choose training data file</label>
           <div class="col-sm-6">
-            <input name="file" type="file" id="customFile"
+            <input name="file" type="file" id="customFile" required
               class="form-control-file <% if(fieldErr("file")){ %>is-invalid<% } %>">
             <% if(fieldErr("file")){ %>
               <div class="invalid-feedback"><%= fieldErr("file") %></div>

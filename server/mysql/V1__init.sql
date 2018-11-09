@@ -7,8 +7,11 @@ create table model (
   has_data       tinyint      not null default false,
   is_in_progress tinyint      not null default false,
   is_complete    tinyint      not null default false,
+  training_pid   varchar(255),
   primary key (id)
 );
 
 alter table model
   add constraint unique_id unique (id);
+alter table model
+  add constraint unique_pid unique (training_pid);

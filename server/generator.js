@@ -56,9 +56,9 @@ function chackTrainParams(params){
  * @param [params] {Object}
  * @return {Object} errors
  */
-function trainModel(submissionId, params) {
+function trainModel(submissionId, params, cb) {
 
-  if (!submissionId) return {"submissionId": "required"};
+  if (!submissionId) return cb("submissionId required");
 
   let args = {
     num_seqs: 32,
@@ -77,7 +77,7 @@ function trainModel(submissionId, params) {
   if (typeof params === "object") {
     let errors = chackTrainParams(params)
     if (errors) {
-      console.log(validator.errors)
+      return cb(errors)
     } else {
       Object.assign(args, params)
     }
@@ -122,7 +122,7 @@ function trainModel(submissionId, params) {
   subprocess.on("error", () => rimraf.sync(trainPidPath))
   subprocess.on("exit", () => rimraf.sync(trainPidPath))
 
-  return null
+  return cb(null, subprocess);
 }
 
 /**
