@@ -63,7 +63,7 @@ app.get('/model', function (req, res) {
     [limit, offset],
     (error, results, fields) => {
       if (error) throw error
-      res.render('models', {models: results})
+      res.render('list', {models: results})
     })
 })
 
@@ -121,7 +121,7 @@ app.get('/model/:id', function (req, res) {
         res.render('404')
         return
       }
-      res.render('modelInstance', {model: results[0]})
+      res.render('show', {model: results[0]})
     })
 })
 
