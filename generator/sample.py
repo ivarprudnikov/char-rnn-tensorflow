@@ -2,6 +2,9 @@ import tensorflow as tf
 from read_utils import TextConverter
 from model import CharRNN
 import os
+import logging
+
+logging.getLogger('tensorflow').setLevel(logging.ERROR)
 
 FLAGS = tf.flags.FLAGS
 

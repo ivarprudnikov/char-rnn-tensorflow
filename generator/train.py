@@ -4,6 +4,9 @@ from model import CharRNN
 import os
 import codecs
 import re
+import logging
+
+logging.getLogger('tensorflow').setLevel(logging.ERROR)
 
 FLAGS = tf.flags.FLAGS
 
