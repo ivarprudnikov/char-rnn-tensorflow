@@ -87,7 +87,7 @@
         $("#sample").text(data)
       })
       .fail(function (data) {
-        $("#sample").text(data || "Error occurred")
+        $("#sample").text(JSON.stringify(data) || "Error occurred")
       })
       .always(function () {
         $("#sampleBtn").prop("disabled", false)

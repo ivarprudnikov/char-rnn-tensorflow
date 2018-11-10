@@ -1,11 +1,11 @@
 const rimraf = require('rimraf')
 const mkdirp = require('mkdirp')
 const {spawn} = require('child_process')
-const {Readable} = require("stream")
 const fs = require('fs')
 const path = require('path')
 const Ajv = require('ajv');
 const {setModelTrainingStopped} = require("./db");
+const util = require("util")
 const {
   UPLOADS_PATH,
   TRAIN_FILENAME,
@@ -36,10 +36,26 @@ const trainOptionsSchema = {
   additionalProperties: false
 }
 
-const ajv = new Ajv({allErrors: true, coerceTypes: true, removeAdditional: true});
-const validator = ajv.compile(trainOptionsSchema)
+const sampleOptionsSchema = {
+  $id: "generator/schema/sampling/options.json",
+  $schema: "http://json-schema.org/draft-07/schema#",
+  type: "object",
+  properties: {
+    lstm_size: {type: "integer", minimum: 0, description: "size of hidden state of lstm"},
+    num_layers: {type: "integer", minimum: 0, description: "number of lstm layers"},
+    use_embedding: {type: "boolean", description: "whether to use embedding"},
+    embedding_size: {type: "integer", minimum: 1, description: "size of embedding"},
+    start_string: {type: "string", description: "use this string to start generating"},
+    max_length: {type: "integer", minimum: 1, description: "max length to generate"},
+  },
+  additionalProperties: false
+}
 
-function chackTrainParams(params) {
+const ajv = new Ajv({allErrors: true, coerceTypes: true, removeAdditional: true});
+const trainValidator = ajv.compile(trainOptionsSchema)
+const sampleValidator = ajv.compile(sampleOptionsSchema)
+
+function validate(validator, params) {
   if (validator(params)) {
     return null
   }
@@ -49,6 +65,14 @@ function chackTrainParams(params) {
     errors[keyWithoutTrailingDot] = err.message
   })
   return errors
+}
+
+function chackTrainParams(params) {
+  return validate(trainValidator, params)
+}
+
+function checkSampleParams(params) {
+  return validate(sampleValidator, params)
 }
 
 /**
@@ -86,6 +110,7 @@ function trainModel(submissionId, params, cb) {
 
   const folderPath = path.join(UPLOADS_PATH, submissionId)
   const trainFilePath = path.join(folderPath, TRAIN_FILENAME)
+  if (!fs.existsSync(trainFilePath)) return cb("missing training data file")
   const trainPidPath = path.join(folderPath, TRAIN_PID_FILENAME)
   const modelDir = path.join(GENERATOR_PATH, MODEL_DIR, submissionId)
   rimraf.sync(modelDir)
@@ -115,6 +140,7 @@ function trainModel(submissionId, params, cb) {
       spawnArgs.push(args[k])
     }
   })
+  console.log("Training", util.inspect(spawnArgs))
   const subprocess = spawn('python', spawnArgs, {
     stdio: ['ignore', logBinding, logBinding]
   });
@@ -134,29 +160,32 @@ function trainModel(submissionId, params, cb) {
 }
 
 /**
- *
  * @param submissionId {String}
- * @return process {ChildProcess}
+ * @param cb {Function} callback
  */
-function sampleModel(submissionId) {
+function sampleModel(submissionId, params, cb) {
 
-  const s = new Readable()
-  const programStub = {
-    stdout: s,
-    stderr: s
-  }
-
-  if (!submissionId) {
-    programStub.stderr.push('missing id')
-    programStub.stderr.push(null)
-    return programStub
-  }
+  if (!submissionId) return cb("submissionId required");
 
   const modelDir = path.join(GENERATOR_PATH, MODEL_DIR, submissionId)
-  if (!fs.existsSync(modelDir)) {
-    programStub.stderr.push('missing model')
-    programStub.stderr.push(null)
-    return programStub
+  if (!fs.existsSync(modelDir)) return cb("missing the model")
+
+  let args = {
+    lstm_size: 128,
+    num_layers: 2,
+    use_embedding: false,
+    embedding_size: 128,
+    start_string: '',
+    max_length: 30
+  }
+
+  if (typeof params === "object") {
+    let errors = checkSampleParams(params)
+    if (errors) {
+      return cb(errors)
+    } else {
+      Object.assign(args, params)
+    }
   }
 
   /*
@@ -165,14 +194,24 @@ function sampleModel(submissionId) {
     --checkpoint_path model/shakespeare/ \
     --max_length 1000
   */
-  return spawn('python', [
+  let spawnArgs = [
     path.join(GENERATOR_PATH, 'sample.py'),
+    "-W", "ignore",
     "--converter_path", path.join(modelDir, "converter.pkl"),
     "--checkpoint_path", modelDir,
-    "--max_length", "1000"
-  ], {
+  ]
+  Object.keys(args).forEach((k) => {
+    if (k != null && args[k] != null) {
+      spawnArgs.push(`--${k}`)
+      spawnArgs.push(args[k])
+    }
+  })
+  console.log("Sampling", util.inspect(spawnArgs))
+  const process = spawn('python', spawnArgs, {
     stdio: ["ignore", "pipe", "pipe"]
   });
+
+  cb(null, process)
 }
 
 module.exports = {

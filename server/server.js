@@ -8,6 +8,7 @@ const mkdirp = require('mkdirp')
 const {sampleModel, trainModel, chackTrainParams} = require("./generator");
 const multer = require('multer')
 const multerUpload = multer()
+const util = require("util")
 const {list, insertModel, findModel, updateModel, setModelHasData, setModelTrainingStarted, setModelTrainingStopped} = require('./db')
 
 const {
@@ -101,7 +102,7 @@ app.post('/model/create', multerUpload.none(), function (req, res) {
   res.set({Connection: 'close'});
   const id = uuidv1()
 
-  insertModel( {
+  insertModel({
     id: id,
     name: name,
     train_params: "{}"
@@ -220,8 +221,12 @@ app.post('/model/:id/start', checkPathParamSet("id"), loadInstanceById(), functi
   const params = JSON.parse(model.train_params || "{}")
   trainModel(model.id, params, (err, process) => {
     if (err) {
-      console.log(err)
-      setModelTrainingStopped(model.id, () => res.redirect("/model/" + model.id))
+      setModelTrainingStopped(model.id, () =>
+        res.render('show', Object.assign(res.locals, {
+          model: req.instance,
+          error: util.inspect(err)
+        }))
+      )
     } else {
       setModelTrainingStarted(model.id, process.pid, () => res.redirect("/model/" + model.id))
     }
@@ -245,10 +250,28 @@ app.get('/model/:id/sample', checkPathParamSet("id"), loadInstanceById(), functi
     return
   }
 
-  const program = sampleModel(model.id)
-  res.set('Content-Type', 'text/plain');
-  program.stdout.pipe(res)
-  program.stderr.pipe(res)
+  // use same params from training
+  const trainingParams = JSON.parse(model.train_params)
+  let args = [
+    'lstm_size',
+    'num_layers',
+    'use_embedding',
+    'embedding_size'
+  ].reduce((memo, key) => {
+    if (trainingParams[key] != null)
+      memo[key] = trainingParams[key]
+    return memo;
+  }, {})
+
+  // TODO add start_string and max_length from query params
+  sampleModel(model.id, args, (err, process) => {
+    if (err) {
+      return res.status(400).send({error: util.inspect(err)})
+    }
+    res.set('Content-Type', 'text/plain');
+    process.stdout.pipe(res)
+    process.stderr.pipe(res)
+  })
 })
 
 // Start server
