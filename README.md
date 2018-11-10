@@ -25,7 +25,15 @@ python dependencies are installed locally.
 ### a) Build and run Docker image
 
 - To `build` container image: `docker build -t <some_name> .`
-- To `run` built image: `docker run -p 8080:8080 -ti --rm <some_name>`
+- To `run` above image: 
+```
+docker run --rm -ti \
+    -e "MYSQL_HOST=docker.for.mac.localhost" \
+    -e "MYSQL_USER=root" \
+    -e "MYSQL_PASSWORD=" \
+    -e "MYSQL_DATABASE=rnn_generator" \
+    -p 8080:8080 <some_name>
+```
 
 ### b) Run using virtualenv
 
