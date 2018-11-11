@@ -16,7 +16,7 @@
     "python",
     "aws"
   ],
-  "author": "",
+  "author": "Aivaras Prudnikovas",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/ivarprudnikov/char-rnn-tensorflow/issues"
