@@ -129,6 +129,7 @@ function trainModel(submissionId, params, cb) {
     --max_steps 20000
   */
   let spawnArgs = [
+    "-u",
     path.join(GENERATOR_PATH, 'train.py'),
     "--input_file", trainFilePath, // utf8 encoded text file
     "--name", submissionId // name of the model
@@ -195,6 +196,7 @@ function sampleModel(submissionId, params, cb) {
     --max_length 1000
   */
   let spawnArgs = [
+    "-u",
     path.join(GENERATOR_PATH, 'sample.py'),
     "-W", "ignore",
     "--converter_path", path.join(modelDir, "converter.pkl"),
