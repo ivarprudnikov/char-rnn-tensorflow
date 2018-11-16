@@ -26,6 +26,9 @@ app.use('/static', express.static(path.join(__dirname, PUBLIC_DIR)))
 // create directory for uploads if does not exist
 mkdirp.sync(UPLOADS_PATH)
 
+// Middleware
+//////////////////////////////////////////////////////////////////////
+
 // HTML Form helper
 app.use(function (req, res, next) {
   res.locals.fieldErr = (key) => {
@@ -40,9 +43,6 @@ app.use(function (req, res, next) {
   }
   next();
 });
-
-// METHODS
-//////////////////////////////////////////////////////////////////////
 
 function checkPathParamSet(paramName) {
   return function (req, res, next) {
