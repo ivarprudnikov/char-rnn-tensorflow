@@ -4,15 +4,14 @@ const {spawn} = require('child_process')
 const fs = require('fs')
 const path = require('path')
 const Ajv = require('ajv');
-const {setModelTrainingStopped} = require("./db");
+const {setModelTrainingStopped, insertLogEntry, deleteLogEntries} = require("./db");
 const util = require("util")
 const {
   UPLOADS_PATH,
   TRAIN_FILENAME,
   TRAIN_PID_FILENAME,
   GENERATOR_PATH,
-  MODEL_DIR,
-  LOG_FILENAME
+  MODEL_DIR
 } = require("./constants")
 
 const trainOptionsSchema = {
@@ -116,9 +115,8 @@ function trainModel(submissionId, params, cb) {
   rimraf.sync(modelDir)
   mkdirp.sync(modelDir)
 
-  const logFilePath = path.join(folderPath, LOG_FILENAME)
-  fs.writeFileSync(logFilePath)
-  const logBinding = fs.openSync(logFilePath, 'a');
+  deleteLogEntries(submissionId)
+
   /*
   python train.py \
     --input_file data/shakespeare.txt  \
@@ -143,9 +141,27 @@ function trainModel(submissionId, params, cb) {
   })
   console.log("Training", util.inspect(spawnArgs))
   const subprocess = spawn('python', spawnArgs, {
-    stdio: ['ignore', logBinding, logBinding]
+    stdio: ['ignore', "pipe", "pipe"]
   });
   fs.writeFileSync(trainPidPath, subprocess.pid)
+
+  let chunkPosition = 1
+  subprocess.stdout.on('data', (data) => {
+    insertLogEntry({
+      model_id: submissionId,
+      chunk: data + "",
+      position: chunkPosition
+    })
+    chunkPosition++
+  });
+  subprocess.stderr.on('data', (data) => {
+    insertLogEntry({
+      model_id: submissionId,
+      chunk: `Error: ${data}`,
+      position: chunkPosition
+    })
+    chunkPosition++
+  });
   subprocess.on("error", () => {
     rimraf.sync(trainPidPath)
     setModelTrainingStopped(submissionId, () => {

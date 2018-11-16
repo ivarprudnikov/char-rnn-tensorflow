@@ -12,7 +12,7 @@ function list(limit, offset, cb) {
     [limit, offset],
     (error, results) => {
       if (error) throw error
-      cb(results)
+      cb && cb(results)
     })
 }
 
@@ -20,14 +20,30 @@ function insertModel(params, cb) {
   pool.query("INSERT INTO model SET ?", params,
     (error, results) => {
       if (error) throw error
-      cb(results)
+      cb && cb(results)
+    })
+}
+
+function insertLogEntry(params, cb) {
+  pool.query("INSERT INTO model_log SET ?", params,
+    (error, results) => {
+      if (error) throw error
+      cb && cb(results)
+    })
+}
+
+function deleteLogEntries(id, cb) {
+  pool.query("delete from model_log where model_id = ?", id,
+    (error, results) => {
+      if (error) throw error
+      cb && cb(results)
     })
 }
 
 function updateModel(id, params, cb) {
   pool.query("UPDATE model SET ? WHERE id=?", [params, id], (error, results) => {
     if (error) throw error
-    cb(results)
+    cb && cb(results)
   })
 }
 
@@ -36,7 +52,7 @@ function setModelHasData(id, value, cb) {
     has_data: value ? 1 : 0
   }, id], (error, results) => {
     if (error) throw error
-    cb(results)
+    cb && cb(results)
   })
 }
 
@@ -47,7 +63,7 @@ function setModelTrainingStarted(id, pid, cb) {
     is_complete: 0
   }, id], (error, results) => {
     if (error) throw error
-    cb(results)
+    cb && cb(results)
   })
 }
 
@@ -58,7 +74,7 @@ function setModelTrainingStopped(id, cb) {
     is_complete: 1
   }, id], (error, results) => {
     if (error) throw error
-    cb(results)
+    cb && cb(results)
   })
 }
 
@@ -67,14 +83,26 @@ function findModel(id, cb) {
     [id],
     (error, results) => {
       if (error) throw error
-      cb(results && results[0])
+      cb && cb(results && results[0])
+    })
+}
+
+function findLog(id, cb) {
+  pool.query("select * from model_log where model_id = ? order by position asc",
+    [id],
+    (error, results) => {
+      if (error) throw error
+      cb && cb(results)
     })
 }
 
 module.exports = {
   list,
   insertModel,
+  insertLogEntry,
+  deleteLogEntries,
   findModel,
+  findLog,
   updateModel,
   setModelTrainingStarted,
   setModelTrainingStopped,
