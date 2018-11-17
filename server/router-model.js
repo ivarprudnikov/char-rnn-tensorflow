@@ -13,10 +13,10 @@ const {
   TRAIN_FILENAME,
   UPLOADS_PATH,
 } = require("./constants")
-const { checkPathParamSet, localsFormHelper } = require('./middleware')
+const {checkPathParamSet, localsFormHelper} = require('./middleware')
 
 function loadInstanceById() {
-  return function (req, res, next) {
+  return (req, res, next) => {
     db.findModel(req.params.id, (instance) => {
       if (!instance) {
         res.render('404')
@@ -30,18 +30,18 @@ function loadInstanceById() {
 
 routerModel.use(localsFormHelper)
 
-routerModel.get('/', function (req, res) {
+routerModel.get('/', (req, res) => {
   let limit = Math.min(parseInt(req.query.max) || 10, 100)
   let offset = parseInt(req.query.offset) || 0
 
   db.list(limit, offset, (results) => res.render('list', Object.assign(res.locals, {models: results})))
 })
 
-routerModel.get('/create', function (req, res) {
+routerModel.get('/create', (req, res) => {
   res.render('create')
 })
 
-routerModel.post('/create', multerUpload.none(), function (req, res) {
+routerModel.post('/create', multerUpload.none(), (req, res) => {
 
   let name = req.body.name
 
@@ -65,7 +65,7 @@ routerModel.post('/create', multerUpload.none(), function (req, res) {
   }, () => res.redirect(`${req.baseUrl}/${id}`))
 })
 
-routerModel.get('/:id', checkPathParamSet("id"), loadInstanceById(), function (req, res) {
+routerModel.get('/:id', checkPathParamSet("id"), loadInstanceById(), (req, res) => {
   db.findLog(req.instance.id, (rows) => {
     let log = (rows || []).map((row) => row.chunk).join("\n")
     res.render('show', Object.assign(res.locals, {
@@ -75,14 +75,14 @@ routerModel.get('/:id', checkPathParamSet("id"), loadInstanceById(), function (r
   })
 })
 
-routerModel.get('/:id/options', checkPathParamSet("id"), loadInstanceById(), function (req, res) {
+routerModel.get('/:id/options', checkPathParamSet("id"), loadInstanceById(), (req, res) => {
   res.render('training_options', Object.assign(res.locals, {
     data: JSON.parse(req.instance.train_params),
     model: req.instance
   }))
 })
 
-routerModel.post('/:id/options', checkPathParamSet("id"), loadInstanceById(), multerUpload.none(), function (req, res) {
+routerModel.post('/:id/options', checkPathParamSet("id"), loadInstanceById(), multerUpload.none(), (req, res) => {
 
   let model = req.instance
 
@@ -108,14 +108,14 @@ routerModel.post('/:id/options', checkPathParamSet("id"), loadInstanceById(), mu
   db.updateModel(model.id, {train_params: JSON.stringify(params)}, () => res.redirect(`${req.baseUrl}/${model.id}`))
 })
 
-routerModel.get('/:id/upload', checkPathParamSet("id"), loadInstanceById(), function (req, res) {
+routerModel.get('/:id/upload', checkPathParamSet("id"), loadInstanceById(), (req, res) => {
   res.render('upload', Object.assign(res.locals, {model: req.instance}))
 })
 
 /**
  * Upload save text file and spawn training script
  */
-routerModel.post('/:id/upload', checkPathParamSet("id"), loadInstanceById(), function (req, res) {
+routerModel.post('/:id/upload', checkPathParamSet("id"), loadInstanceById(), (req, res) => {
 
   let model = req.instance
 
@@ -168,7 +168,7 @@ routerModel.post('/:id/upload', checkPathParamSet("id"), loadInstanceById(), fun
   req.pipe(busboy)
 })
 
-routerModel.post('/:id/start', checkPathParamSet("id"), loadInstanceById(), function (req, res) {
+routerModel.post('/:id/start', checkPathParamSet("id"), loadInstanceById(), (req, res) => {
 
   let model = req.instance
   if (model.training_pid) {
@@ -190,7 +190,7 @@ routerModel.post('/:id/start', checkPathParamSet("id"), loadInstanceById(), func
   })
 })
 
-routerModel.post('/:id/stop', checkPathParamSet("id"), loadInstanceById(), function (req, res) {
+routerModel.post('/:id/stop', checkPathParamSet("id"), loadInstanceById(), (req, res) => {
 
   let model = req.instance
   if (model.training_pid) {
@@ -200,7 +200,7 @@ routerModel.post('/:id/stop', checkPathParamSet("id"), loadInstanceById(), funct
   db.setModelTrainingStopped(model.id, () => res.redirect(`${req.baseUrl}/${model.id}`))
 })
 
-routerModel.get('/:id/sample', checkPathParamSet("id"), loadInstanceById(), function (req, res) {
+routerModel.get('/:id/sample', checkPathParamSet("id"), loadInstanceById(), (req, res) => {
   let model = req.instance
   if (!model.is_complete) {
     res.status(400).send({error: "Not ready yet"})

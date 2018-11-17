@@ -7,7 +7,7 @@ var pool = mysql.createPool({
   database: process.env.MYSQL_DATABASE || 'rnn_generator'
 });
 
-function list(limit, offset, cb) {
+module.exports.list = (limit, offset, cb) => {
   pool.query("select * from model order by updated_at desc limit ? offset ?",
     [limit, offset],
     (error, results) => {
@@ -16,7 +16,7 @@ function list(limit, offset, cb) {
     })
 }
 
-function insertModel(params, cb) {
+module.exports.insertModel = (params, cb) => {
   pool.query("INSERT INTO model SET ?", params,
     (error, results) => {
       if (error) throw error
@@ -24,7 +24,7 @@ function insertModel(params, cb) {
     })
 }
 
-function insertLogEntry(params, cb) {
+module.exports.insertLogEntry = (params, cb) => {
   pool.query("INSERT INTO model_log SET ?", params,
     (error, results) => {
       if (error) throw error
@@ -32,7 +32,7 @@ function insertLogEntry(params, cb) {
     })
 }
 
-function deleteLogEntries(id, cb) {
+module.exports.deleteLogEntries = (id, cb) => {
   pool.query("delete from model_log where model_id = ?", id,
     (error, results) => {
       if (error) throw error
@@ -40,14 +40,14 @@ function deleteLogEntries(id, cb) {
     })
 }
 
-function updateModel(id, params, cb) {
+module.exports.updateModel = (id, params, cb) => {
   pool.query("UPDATE model SET ? WHERE id=?", [params, id], (error, results) => {
     if (error) throw error
     cb && cb(results)
   })
 }
 
-function setModelHasData(id, value, cb) {
+module.exports.setModelHasData = (id, value, cb) => {
   pool.query("UPDATE model SET ? WHERE id=?", [{
     has_data: value ? 1 : 0
   }, id], (error, results) => {
@@ -56,7 +56,7 @@ function setModelHasData(id, value, cb) {
   })
 }
 
-function setModelTrainingStarted(id, pid, cb) {
+module.exports.setModelTrainingStarted = (id, pid, cb) => {
   pool.query("UPDATE model SET ? WHERE id=?", [{
     training_pid: pid,
     is_in_progress: 1,
@@ -67,7 +67,7 @@ function setModelTrainingStarted(id, pid, cb) {
   })
 }
 
-function setModelTrainingStopped(id, cb) {
+module.exports.setModelTrainingStopped = (id, cb) => {
   pool.query("UPDATE model SET ? WHERE id=?", [{
     training_pid: null,
     is_in_progress: 0,
@@ -78,7 +78,7 @@ function setModelTrainingStopped(id, cb) {
   })
 }
 
-function findModel(id, cb) {
+module.exports.findModel = (id, cb) => {
   pool.query("select * from model where id = ?",
     [id],
     (error, results) => {
@@ -87,24 +87,11 @@ function findModel(id, cb) {
     })
 }
 
-function findLog(id, cb) {
+module.exports.findLog = (id, cb) => {
   pool.query("select * from model_log where model_id = ? order by position asc",
     [id],
     (error, results) => {
       if (error) throw error
       cb && cb(results)
     })
-}
-
-module.exports = {
-  list,
-  insertModel,
-  insertLogEntry,
-  deleteLogEntries,
-  findModel,
-  findLog,
-  updateModel,
-  setModelTrainingStarted,
-  setModelTrainingStopped,
-  setModelHasData
 }

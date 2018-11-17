@@ -13,7 +13,7 @@ module.exports.localsFormHelper = (req, res, next) => {
 }
 
 module.exports.checkPathParamSet = (paramName) => {
-  return function (req, res, next) {
+  return (req, res, next) => {
     if (!req.params[paramName]) {
       res.render('404')
       return
