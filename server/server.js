@@ -16,16 +16,10 @@ app.use('/static', express.static(path.join(__dirname, PUBLIC_DIR)))
 // create directory for uploads if does not exist
 mkdirp.sync(UPLOADS_PATH)
 
-// Routes
-//////////////////////////////////////////////////////////////////////
-
 app.get('/', function (req, res) {
   res.render('index')
 })
 app.use('/model', modelRouter)
-
-// Start server
-//////////////////////////////////////////////////////////////////////
 
 app.listen(PORT, () => {
   console.log('\n');
