@@ -11,22 +11,72 @@
 
   <div class="row">
 
-    <div class="mt-5 col-sm-8 offset-sm-2 col-lg-6 offset-lg-3">
-      <h1 class="text-center mb-5">Generator models</h1>
+    <div class="mt-5 col-sm-12">
+      <h1 class="mb-3 h3">Submitted projects
+        <small>Total <%= locals.total %></small>
+      </h1>
 
       <% if (!locals.models || !locals.models.length){ %>
         <div class="alert alert-info">Nothing found</div>
       <% } else { %>
-        <ul>
-          <% locals.models.forEach((model) => { %>
-            <li>
-              <a href="/model/<%= model.id %>">
-                <%= model.id %> <span class="badge badge-info"><%= model.status %></span>
-              </a>
-            </li>
+        <table class="table">
+          <thead class="">
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Id</th>
+            <th scope="col">Name</th>
+            <th scope="col">Last updated</th>
+            <th scope="col">Has training data</th>
+            <th scope="col">Is in progress</th>
+            <th scope="col">Finished training</th>
+          </tr>
+          </thead>
+          <tbody>
+          <% locals.models.forEach((model, idx) => { %>
+            <tr>
+              <th scope="row"><%= idx + 1 + locals.params.offset %></th>
+              <td><a href="/model/<%= model.id %>"><%= model.id %></a></td>
+              <td><%= model.name %></td>
+              <td><%= model.updated_at %></td>
+              <td><%= model.has_data %></td>
+              <td><%= model.is_in_progress %></td>
+              <td><%= model.is_complete %></td>
+            </tr>
           <% }) %>
-        </ul>
+          </tbody>
+        </table>
       <% } %>
+
+      <%
+      var page = Math.floor(params.offset / params.max) + 1;
+      var pages = Math.ceil(total / params.max);
+      var prevPageExists = page > 1;
+      var prevOffset = prevPageExists ? params.offset - params.max : 0;
+      var nextPageExists = page < pages;
+      var nextOffset = nextPageExists ? params.offset + params.max : (pages - 1) * params.max;
+      %>
+
+      <nav aria-label="Navigation">
+        <ul class="pagination justify-content-end">
+          <li class="page-item <%= prevPageExists ? '' : 'disabled' %>">
+            <a class="page-link" href="?offset=<%=prevOffset%>&max=<%=params.max%>" aria-label="Previous">
+              <span aria-hidden="true">&laquo;</span>
+              <span class="sr-only">Previous</span>
+            </a>
+          </li>
+          <li class="page-item disabled">
+            <a class="page-link" href="#">
+              Page <%= page %> of <%= pages %>
+            </a>
+          </li>
+          <li class="page-item <%= nextPageExists ? '' : 'disabled' %>">
+            <a class="page-link" href="?offset=<%=nextOffset%>&max=<%=params.max%>" aria-label="Next">
+              <span aria-hidden="true">&raquo;</span>
+              <span class="sr-only">Next</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
 
     </div>
 

@@ -7,13 +7,25 @@ var pool = mysql.createPool({
   database: process.env.MYSQL_DATABASE || 'rnn_generator'
 });
 
-module.exports.list = (limit, offset, cb) => {
-  pool.query("select * from model order by updated_at desc limit ? offset ?",
-    [limit, offset],
-    (error, results) => {
-      if (error) throw error
-      cb && cb(results)
-    })
+module.exports.list = (limit, offset) => {
+  return new Promise(function(resolve, reject) {
+    pool.query("select * from model order by updated_at desc limit ? offset ?",
+      [limit, offset],
+      (error, results) => {
+        if (error) reject(error)
+        else resolve(results)
+      })
+  });
+}
+
+module.exports.count = () => {
+  return new Promise(function(resolve, reject) {
+    pool.query("select count(*) as t from model where 1=1",
+      (error, results) => {
+        if (error) reject(error)
+        else resolve(results && results[0] && results[0].t)
+      })
+  })
 }
 
 module.exports.insertModel = (params, cb) => {

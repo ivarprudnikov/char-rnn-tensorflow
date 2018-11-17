@@ -31,11 +31,15 @@ function loadInstanceById() {
 
 routerModel.use(localsFormHelper)
 
-routerModel.get('/', (req, res) => {
-  let limit = Math.min(parseInt(req.query.max) || 10, 100)
-  let offset = parseInt(req.query.offset) || 0
+routerModel.get('/', async (req, res) => {
+  let params = {
+    max: Math.min(parseInt(req.query.max) || 10, 100),
+    offset: parseInt(req.query.offset) || 0
+  }
+  let total = await db.count()
+  let models = await db.list(params.max, params.offset)
 
-  db.list(limit, offset, (results) => res.render('list', Object.assign(res.locals, {models: results})))
+  res.render('list', Object.assign(res.locals, {models, total, params}))
 })
 
 routerModel.get('/create', (req, res) => {
