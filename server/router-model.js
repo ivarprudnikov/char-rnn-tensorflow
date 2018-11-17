@@ -10,6 +10,7 @@ const util = require("util")
 const db = require('./db')
 const path = require('path')
 const {
+  WEBSOCKET,
   TRAIN_FILENAME,
   UPLOADS_PATH,
 } = require("./constants")
@@ -187,21 +188,27 @@ routerModel.post('/:id/start', checkPathParamSet("id"), loadInstanceById(), (req
       }))
     );
 
+    const wss = req.app.get(WEBSOCKET)
+
     let chunkPosition = 1
     subprocess.stdout.on('data', (data) => {
-      db.insertLogEntry({
+      let logEntry = {
         model_id: model.id,
         chunk: data + "",
         position: chunkPosition
-      })
+      }
+      db.insertLogEntry(logEntry)
+      wss.broadcast(JSON.stringify(logEntry))
       chunkPosition++
     });
     subprocess.stderr.on('data', (data) => {
-      db.insertLogEntry({
+      let logEntry = {
         model_id: model.id,
         chunk: `Error: ${data}`,
         position: chunkPosition
-      })
+      }
+      db.insertLogEntry(logEntry)
+      wss.broadcast(JSON.stringify(logEntry))
       chunkPosition++
     });
 

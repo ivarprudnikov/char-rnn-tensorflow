@@ -62,7 +62,7 @@
     </div>
     <div class="col-sm-4">
       <h2 class="mb-3">Training log</h2>
-      <pre class="bg-dark text-light p-3 small"><%= locals.log %></pre>
+      <pre id="trainingLog" class="bg-dark text-light p-3 small"><%= locals.log %></pre>
     </div>
     <div class="col-sm-4">
       <h2 class="mb-3">Generated sample</h2>
@@ -91,6 +91,44 @@
         $("#sampleBtn").prop("disabled", false)
       })
   }
+</script>
+
+<script>
+  function appendWSText(text) {
+    var txt = $("#trainingLog").text()
+    txt += (text)
+    $("#trainingLog").text(txt)
+  }
+
+  var conn = {}
+  function openConnection(cb) {
+    // uses global 'conn' object
+    if (conn.readyState === undefined || conn.readyState > 1) {
+      conn = new WebSocket('ws://' + window.location.host + '/');
+      conn.onopen = function () {
+        console.log("Socket open")
+        if(typeof cb === "function"){
+          cb(conn)
+        }
+      };
+      conn.onmessage = function (event) {
+        var message = event.data;
+        console.log(message)
+      };
+      conn.onclose = function (event) {
+        console.log("Socket closed")
+      };
+    } else if(typeof cb === "function"){
+      cb(conn)
+    }
+  }
+
+  if (window.WebSocket === undefined) {
+    console.log("Sockets not supported")
+  } else {
+    openConnection();
+  }
+
 </script>
 
 </body>

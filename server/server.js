@@ -1,9 +1,14 @@
 const express = require('express')
 const app = express()
+const WebSocket = require("ws")
+const http = require("http")
+const server = http.createServer(app);
+const wss = new WebSocket.Server({server});
 const path = require('path')
 const mkdirp = require('mkdirp')
 const modelRouter = require('./router-model')
 const {
+  WEBSOCKET,
   VIEWS_DIR,
   PUBLIC_DIR,
   UPLOADS_PATH,
@@ -21,7 +26,24 @@ app.get('/', (req, res) => {
 })
 app.use('/model', modelRouter)
 
-app.listen(PORT, () => {
+// Init WebSocket communication
+wss.broadcast = (data) => {
+  wss.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(data);
+    }
+  });
+};
+wss.on('connection', (ws) => {
+  ws.on('message', (message) => {
+    ws.send(`You sent -> ${message}`);
+  });
+  ws.send('Connection with WebSocket server initialized');
+});
+app.set(WEBSOCKET, wss);
+
+// Start HTTP server
+server.listen(PORT, () => {
   console.log('\n');
   console.log('+--------------------------')
   console.log(' PID %d', process.pid)

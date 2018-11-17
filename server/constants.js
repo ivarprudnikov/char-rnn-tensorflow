@@ -2,6 +2,7 @@ const path = require('path')
 
 const constants = {
   PORT: 8080,
+  WEBSOCKET: 'websocket',
   TRAIN_FILENAME: "train.txt",
   TRAIN_PID_FILENAME: "train.pid",
   UPLOADS_DIR: "uploads",
