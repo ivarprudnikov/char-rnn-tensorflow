@@ -176,17 +176,38 @@ routerModel.post('/:id/start', checkPathParamSet("id"), loadInstanceById(), (req
   }
 
   const params = JSON.parse(model.train_params || "{}")
-  trainModel(model.id, params, (err, process) => {
-    if (err) {
-      db.setModelTrainingStopped(model.id, () =>
-        res.render('show', Object.assign(res.locals, {
-          model: req.instance,
-          error: util.inspect(err)
-        }))
-      )
-    } else {
-      db.setModelTrainingStarted(model.id, process.pid, () => res.redirect(`${req.baseUrl}/${model.id}`))
-    }
+
+  db.deleteLogEntries(model.id)
+
+  trainModel(model.id, params, (err, subprocess) => {
+    if (err) return db.setModelTrainingStopped(model.id, () =>
+      res.render('show', Object.assign(res.locals, {
+        model: req.instance,
+        error: util.inspect(err)
+      }))
+    );
+
+    let chunkPosition = 1
+    subprocess.stdout.on('data', (data) => {
+      db.insertLogEntry({
+        model_id: model.id,
+        chunk: data + "",
+        position: chunkPosition
+      })
+      chunkPosition++
+    });
+    subprocess.stderr.on('data', (data) => {
+      db.insertLogEntry({
+        model_id: model.id,
+        chunk: `Error: ${data}`,
+        position: chunkPosition
+      })
+      chunkPosition++
+    });
+
+    db.setModelTrainingStarted(model.id, process.pid, () =>
+      res.redirect(`${req.baseUrl}/${model.id}`)
+    );
   })
 })
 

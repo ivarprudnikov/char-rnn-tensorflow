@@ -82,8 +82,6 @@ function trainModel(submissionId, params, cb) {
   rimraf.sync(modelDir)
   mkdirp.sync(modelDir)
 
-  deleteLogEntries(submissionId)
-
   /*
   python train.py \
     --input_file data/shakespeare.txt  \
@@ -111,24 +109,6 @@ function trainModel(submissionId, params, cb) {
     stdio: ['ignore', "pipe", "pipe"]
   });
   fs.writeFileSync(trainPidPath, subprocess.pid)
-
-  let chunkPosition = 1
-  subprocess.stdout.on('data', (data) => {
-    insertLogEntry({
-      model_id: submissionId,
-      chunk: data + "",
-      position: chunkPosition
-    })
-    chunkPosition++
-  });
-  subprocess.stderr.on('data', (data) => {
-    insertLogEntry({
-      model_id: submissionId,
-      chunk: `Error: ${data}`,
-      position: chunkPosition
-    })
-    chunkPosition++
-  });
   subprocess.on("error", () => {
     rimraf.sync(trainPidPath)
     setModelTrainingStopped(submissionId, () => {
@@ -200,7 +180,6 @@ function sampleModel(submissionId, params, cb) {
 }
 
 module.exports = {
-  trainOptionsSchema,
   chackTrainParams,
   trainModel,
   sampleModel
