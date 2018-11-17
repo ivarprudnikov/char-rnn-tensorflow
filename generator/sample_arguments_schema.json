@@ -1,0 +1,36 @@
+{
+  "$id": "generator/schema/sampling/options.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "lstm_size": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "size of hidden state of lstm"
+    },
+    "num_layers": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "number of lstm layers"
+    },
+    "use_embedding": {
+      "type": "boolean",
+      "description": "whether to use embedding"
+    },
+    "embedding_size": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "size of embedding"
+    },
+    "start_string": {
+      "type": "string",
+      "description": "use this string to start generating"
+    },
+    "max_length": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "max length to generate"
+    }
+  },
+  "additionalProperties": false
+}

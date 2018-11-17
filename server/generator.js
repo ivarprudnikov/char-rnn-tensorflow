@@ -14,41 +14,8 @@ const {
   MODEL_DIR
 } = require("./constants")
 
-const trainOptionsSchema = {
-  $id: "generator/schema/training/options.json",
-  $schema: "http://json-schema.org/draft-07/schema#",
-  type: "object",
-  properties: {
-    num_seqs: {type: "integer", minimum: 1, description: "number of seqs in one batch"},
-    num_steps: {type: "integer", minimum: 1, description: "length of one seq"},
-    lstm_size: {type: "integer", minimum: 0, description: "size of hidden state of lstm"},
-    num_layers: {type: "integer", minimum: 0, description: "number of lstm layers"},
-    use_embedding: {type: "boolean", description: "whether to use embedding"},
-    embedding_size: {type: "integer", minimum: 1, description: "size of embedding"},
-    learning_rate: {type: "number", minimum: 0, maximum: 1, description: "learning rate"},
-    train_keep_prob: {type: "number", minimum: 0, maximum: 1, description: "dropout rate during training"},
-    max_steps: {type: "integer", minimum: 1, description: "max steps to train"},
-    save_every_n: {type: "integer", minimum: 1, description: "save the model every n steps"},
-    log_every_n: {type: "integer", minimum: 1, description: "log to the screen every n steps"},
-    max_vocab: {type: "integer", minimum: 1, description: "max char number"}
-  },
-  additionalProperties: false
-}
-
-const sampleOptionsSchema = {
-  $id: "generator/schema/sampling/options.json",
-  $schema: "http://json-schema.org/draft-07/schema#",
-  type: "object",
-  properties: {
-    lstm_size: {type: "integer", minimum: 0, description: "size of hidden state of lstm"},
-    num_layers: {type: "integer", minimum: 0, description: "number of lstm layers"},
-    use_embedding: {type: "boolean", description: "whether to use embedding"},
-    embedding_size: {type: "integer", minimum: 1, description: "size of embedding"},
-    start_string: {type: "string", description: "use this string to start generating"},
-    max_length: {type: "integer", minimum: 1, description: "max length to generate"},
-  },
-  additionalProperties: false
-}
+const trainOptionsSchema = require("../generator/train_arguments_schema")
+const sampleOptionsSchema = require("../generator/sample_arguments_schema")
 
 const ajv = new Ajv({allErrors: true, coerceTypes: true, removeAdditional: true});
 const trainValidator = ajv.compile(trainOptionsSchema)
