@@ -80,7 +80,7 @@
       </ul>
       <div class="tab-content" id="myTabContent">
         <div class="tab-pane fade show active" id="trainingLog" role="tabpanel" aria-labelledby="home-tab">
-          <pre id="trainingLog" class="bg-dark text-light p-3 mt-3 small"><%= locals.log %></pre>
+          <pre id="trainingLogOutput" class="bg-dark text-light p-3 mt-3 small"><%= locals.log %></pre>
         </div>
         <div class="tab-pane fade" id="trainingOptions" role="tabpanel" aria-labelledby="profile-tab">
           <pre class="mt-3"><%= JSON.stringify(JSON.parse(model.train_params), null, 2) %></pre>
@@ -113,10 +113,9 @@
 </script>
 
 <script>
-  function appendWSText(text) {
-    var txt = $("#trainingLog").text()
-    txt += (text)
-    $("#trainingLog").text(txt)
+  function appendWSText(additionalText) {
+    var existing = $("#trainingLogOutput").text()
+    $("#trainingLogOutput").text(existing + additionalText)
   }
 
   var conn = {}
@@ -132,8 +131,15 @@
         }
       };
       conn.onmessage = function (event) {
-        var message = event.data;
-        console.log(message)
+        var message;
+        try {
+          message = JSON.parse(event.data)
+          if (message.model_id === "<%=model.id%>"){ // ids are UUID strings
+            appendWSText(message.chunk) // not using position yet
+          }
+        } catch (e) {
+          // not json :/
+        }
       };
       conn.onclose = function (event) {
         console.log("Socket closed")
