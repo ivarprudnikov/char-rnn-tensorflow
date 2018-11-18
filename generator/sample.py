@@ -29,7 +29,7 @@ def main(_):
                     use_embedding=FLAGS.use_embedding,
                     embedding_size=FLAGS.embedding_size)
 
-    model.load(FLAGS.checkpoint_path)
+    model.load(FLAGS.checkpoint_path, False)
 
     start = converter.text_to_arr(FLAGS.start_string)
     arr = model.sample(FLAGS.max_length, start, converter.vocab_size)

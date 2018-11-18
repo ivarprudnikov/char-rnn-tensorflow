@@ -152,7 +152,8 @@ class CharRNN:
 
         return np.array(samples)
 
-    def load(self, checkpoint):
+    def load(self, checkpoint, verbose=True):
         self.session = tf.Session()
         self.saver.restore(self.session, checkpoint)
-        print('Restored from: {}'.format(checkpoint))
+        if verbose:
+            print('Restored from: {}'.format(checkpoint))
