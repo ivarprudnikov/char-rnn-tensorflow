@@ -4,7 +4,7 @@ const {spawn} = require('child_process')
 const fs = require('fs')
 const path = require('path')
 const Ajv = require('ajv');
-const {setModelTrainingStopped, insertLogEntry, deleteLogEntries} = require("./db");
+const {setModelTrainingStopped} = require("./db");
 const util = require("util")
 const {
   UPLOADS_PATH,
