@@ -33,6 +33,11 @@
 
   </div>
 
+  <div id="sample" class="my-3" style="display: none">
+    <p class="font-weight-bold">Generated sample</p>
+    <div id="sampleOutput" class="bg-dark text-light p-3 small"></div>
+  </div>
+
   <div class="row mt-3">
 
     <div class="col-sm-4">
@@ -60,13 +65,9 @@
       <h2>Training options</h2>
       <pre><%= JSON.stringify(JSON.parse(model.train_params), null, 2) %></pre>
     </div>
-    <div class="col-sm-4">
+    <div class="col-sm-8">
       <h2 class="mb-3">Training log</h2>
       <pre id="trainingLog" class="bg-dark text-light p-3 small"><%= locals.log %></pre>
-    </div>
-    <div class="col-sm-4">
-      <h2 class="mb-3">Generated sample</h2>
-      <div id="sample" class="bg-dark text-light p-3 my-3 small" style="display: none"></div>
     </div>
 
   </div>
@@ -75,17 +76,16 @@
 
 <script>
   function generateSample() {
-    $("#sample").empty()
+    $("#sampleOutput").empty()
     $("#sample").show()
-
     $("#sampleBtn").prop("disabled", true)
 
     $.get("/model/<%= model.id %>/sample")
       .done(function (data) {
-        $("#sample").text(data)
+        $("#sampleOutput").text(data)
       })
       .fail(function (data) {
-        $("#sample").text(JSON.stringify(data) || "Error occurred")
+        $("#sampleOutput").text(JSON.stringify(data) || "Error occurred")
       })
       .always(function () {
         $("#sampleBtn").prop("disabled", false)
