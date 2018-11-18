@@ -4,6 +4,8 @@ Character generator using recurrent neural network (_RNN_).
 Also _Node.js_ server used to provide _HTTP_ API for training 
 _RNN_ and then generating samples from saved checkpoints.
 
+![Homepage screenshot](./app_screenshot.jpg "Homepage screenshot")
+
 ## Generator
 
 _Forked_ from [hzy46/Char-RNN-TensorFlow](https://github.com/hzy46/Char-RNN-TensorFlow) 
