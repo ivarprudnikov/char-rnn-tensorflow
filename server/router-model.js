@@ -258,13 +258,15 @@ routerModel.get('/:id/sample', checkPathParamSet("id"), loadInstanceById(), (req
   }, {})
 
   // TODO add start_string and max_length from query params
-  sampleModel(model.id, args, (err, process) => {
+  sampleModel(model.id, args, (err, subprocess) => {
     if (err) {
       return res.status(400).send({error: util.inspect(err)})
     }
+    subprocess.stderr.on('data', (data) => {
+      console.log(`Error: ${data}`)
+    });
     res.set('Content-Type', 'text/plain');
-    process.stdout.pipe(res)
-    process.stderr.pipe(res)
+    subprocess.stdout.pipe(res)
   })
 })
 
