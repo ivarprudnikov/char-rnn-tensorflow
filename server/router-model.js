@@ -72,7 +72,7 @@ routerModel.post('/create', multerUpload.none(), (req, res) => {
 
 routerModel.get('/:id', checkPathParamSet("id"), loadInstanceById(), (req, res) => {
   db.findLog(req.instance.id, (rows) => {
-    let log = (rows || []).map((row) => row.chunk).join("\n")
+    let log = (rows || []).map((row) => row.chunk).join("")
     res.render('show', Object.assign(res.locals, {
       model: req.instance,
       log: log
