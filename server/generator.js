@@ -104,7 +104,6 @@ function trainModel(submissionId, params, cb) {
       spawnArgs.push(args[k])
     }
   })
-  console.log("Training", util.inspect(spawnArgs))
   const subprocess = spawn('python', spawnArgs, {
     stdio: ['ignore', "pipe", "pipe"]
   });
