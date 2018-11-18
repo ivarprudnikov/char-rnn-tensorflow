@@ -216,7 +216,7 @@ routerModel.post('/:id/start', checkPathParamSet("id"), loadInstanceById(), (req
       chunkPosition++
     });
 
-    db.setModelTrainingStarted(model.id, process.pid, () =>
+    db.setModelTrainingStarted(model.id, subprocess.pid, () =>
       res.redirect(`${req.baseUrl}/${model.id}`)
     );
   })
@@ -226,7 +226,12 @@ routerModel.post('/:id/stop', checkPathParamSet("id"), loadInstanceById(), (req,
 
   let model = req.instance
   if (model.training_pid) {
-    process.kill(model.training_pid)
+    try {
+      let pid = parseInt(model.training_pid, 10)
+      if (!isNaN(pid)) process.kill(pid)
+    } catch (e) {
+      console.log("Error", util.inspect(e))
+    }
   }
 
   db.setModelTrainingStopped(model.id, () => res.redirect(`${req.baseUrl}/${model.id}`))
