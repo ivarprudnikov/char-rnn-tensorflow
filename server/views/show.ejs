@@ -12,21 +12,22 @@
   <div class="my-3">
 
     <% if(model.is_complete){ %>
-      <button id="sampleBtn" type="button" class="btn btn-sm btn-primary" onclick="generateSample()">Generate sample</button>
+      <button id="sampleBtn" type="button" class="btn btn-sm btn-primary" onclick="generateSample()">Generate sample
+      </button>
     <% } %>
 
     <% if(!model.has_data){ %>
       <a class="btn btn-sm btn-outline-primary" href="/model/<%= model.id %>/upload">Upload training data</a>
     <% } %>
 
-      <a class="btn btn-sm btn-outline-primary" href="/model/<%= model.id %>/options">Update training options</a>
+    <a class="btn btn-sm btn-outline-primary" href="/model/<%= model.id %>/options">Update training options</a>
 
     <% if(model.is_in_progress){ %>
-      <form class="d-inline-block" action="/model/<%=model.id%>/stop" method="post">
+      <form class="d-inline-block" action="/model/<%= model.id %>/stop" method="post">
         <button type="submit" class="btn btn-sm btn-danger">Stop training</button>
       </form>
     <% } else if (model.has_data) { %>
-      <form class="d-inline-block" action="/model/<%=model.id%>/start" method="post">
+      <form class="d-inline-block" action="/model/<%= model.id %>/start" method="post">
         <button type="submit" class="btn btn-sm btn-outline-primary">Start training</button>
       </form>
     <% } %>
@@ -41,9 +42,9 @@
   <div class="row mt-3">
 
     <div class="col-sm-4">
-      <h1 class="mb-3">Project: <small><%= model.name %></small></h1>
-
-      <h2>Model properties</h2>
+      <h1 class="mb-3">Project:
+        <small><%= model.name %></small>
+      </h1>
 
       <dl class="mb-3">
         <dt>Generated ID</dt>
@@ -62,12 +63,30 @@
         <dd><%= model.is_complete %></dd>
       </dl>
 
-      <h2>Training options</h2>
-      <pre><%= JSON.stringify(JSON.parse(model.train_params), null, 2) %></pre>
     </div>
     <div class="col-sm-8">
-      <h2 class="mb-3">Training log</h2>
-      <pre id="trainingLog" class="bg-dark text-light p-3 small"><%= locals.log %></pre>
+
+      <ul class="nav nav-tabs" id="trainingTabs" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link active" id="training-log-tab" data-toggle="tab" href="#trainingLog" role="tab"
+             aria-controls="home"
+             aria-selected="true">Training log</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="training-options-tab" data-toggle="tab" href="#trainingOptions" role="tab"
+             aria-controls="profile"
+             aria-selected="false">Training options</a>
+        </li>
+      </ul>
+      <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="trainingLog" role="tabpanel" aria-labelledby="home-tab">
+          <pre id="trainingLog" class="bg-dark text-light p-3 mt-3 small"><%= locals.log %></pre>
+        </div>
+        <div class="tab-pane fade" id="trainingOptions" role="tabpanel" aria-labelledby="profile-tab">
+          <pre class="mt-3"><%= JSON.stringify(JSON.parse(model.train_params), null, 2) %></pre>
+        </div>
+      </div>
+
     </div>
 
   </div>
@@ -101,13 +120,14 @@
   }
 
   var conn = {}
+
   function openConnection(cb) {
     // uses global 'conn' object
     if (conn.readyState === undefined || conn.readyState > 1) {
       conn = new WebSocket('ws://' + window.location.host + '/');
       conn.onopen = function () {
         console.log("Socket open")
-        if(typeof cb === "function"){
+        if (typeof cb === "function") {
           cb(conn)
         }
       };
@@ -118,7 +138,7 @@
       conn.onclose = function (event) {
         console.log("Socket closed")
       };
-    } else if(typeof cb === "function"){
+    } else if (typeof cb === "function") {
       cb(conn)
     }
   }
