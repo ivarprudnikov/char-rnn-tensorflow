@@ -17,15 +17,14 @@ const {
 const {checkPathParamSet, localsFormHelper} = require('./middleware')
 
 function loadInstanceById() {
-  return (req, res, next) => {
-    db.findModel(req.params.id, (instance) => {
-      if (!instance) {
-        res.render('404')
-      } else {
-        req.instance = instance;
-        next()
-      }
-    })
+  return async (req, res, next) => {
+    let instance = await db.findModel(req.params.id)
+    if (!instance) {
+      res.render('404')
+    } else {
+      req.instance = instance;
+      next()
+    }
   }
 }
 
@@ -46,38 +45,43 @@ routerModel.get('/create', (req, res) => {
   res.render('create')
 })
 
-routerModel.post('/create', multerUpload.none(), (req, res) => {
+routerModel.post('/create', multerUpload.none(), async (req, res) => {
 
   let name = req.body.name
 
   if (!name) {
-    res.render('create', Object.assign(res.locals, {
+    return res.render('create', Object.assign(res.locals, {
       error: "Found 1 error",
       errors: {
         name: "Name is required"
       }
     }))
-    return
   }
 
   res.set({Connection: 'close'});
   const id = uuidv1()
+  try {
+    await db.insertModel({
+      id: id,
+      name: name,
+      train_params: "{}"
+    })
+  } catch (e) {
+    return res.render('create', Object.assign(res.locals, {
+      error: "Error occurred while saving"
+    }))
+  }
 
-  db.insertModel({
-    id: id,
-    name: name,
-    train_params: "{}"
-  }, () => res.redirect(`${req.baseUrl}/${id}`))
+  res.redirect(`${req.baseUrl}/${id}`)
 })
 
-routerModel.get('/:id', checkPathParamSet("id"), loadInstanceById(), (req, res) => {
-  db.findLog(req.instance.id, (rows) => {
-    let log = (rows || []).map((row) => row.chunk).join("")
-    res.render('show', Object.assign(res.locals, {
-      model: req.instance,
-      log: log
-    }))
-  })
+routerModel.get('/:id', checkPathParamSet("id"), loadInstanceById(), async (req, res) => {
+  let rows = await db.findLog(req.instance.id)
+  let log = (rows || []).map((row) => row.chunk).join("")
+  res.render('show', Object.assign(res.locals, {
+    model: req.instance,
+    log: log
+  }))
 })
 
 routerModel.get('/:id/options', checkPathParamSet("id"), loadInstanceById(), (req, res) => {
@@ -87,7 +91,7 @@ routerModel.get('/:id/options', checkPathParamSet("id"), loadInstanceById(), (re
   }))
 })
 
-routerModel.post('/:id/options', checkPathParamSet("id"), loadInstanceById(), multerUpload.none(), (req, res) => {
+routerModel.post('/:id/options', checkPathParamSet("id"), loadInstanceById(), multerUpload.none(), async (req, res) => {
 
   let model = req.instance
 
@@ -101,16 +105,19 @@ routerModel.post('/:id/options', checkPathParamSet("id"), loadInstanceById(), mu
 
   let errors = chackTrainParams(params)
   if (errors) {
-    res.render('training_options', Object.assign(res.locals, {
+    return res.render('training_options', Object.assign(res.locals, {
       error: "Found " + Object.keys(errors).length + " errors",
       errors: errors,
       data: params,
       model: req.instance
     }))
-    return
   }
 
-  db.updateModel(model.id, {train_params: JSON.stringify(params)}, () => res.redirect(`${req.baseUrl}/${model.id}`))
+  await db.updateModel(model.id, {
+    train_params: JSON.stringify(params)
+  })
+
+  res.redirect(`${req.baseUrl}/${model.id}`)
 })
 
 routerModel.get('/:id/upload', checkPathParamSet("id"), loadInstanceById(), (req, res) => {
@@ -155,8 +162,9 @@ routerModel.post('/:id/upload', checkPathParamSet("id"), loadInstanceById(), (re
         model: model
       }));
     } else {
-      fileStream.on('finish', () => {
-        db.setModelHasData(model.id, true, () => res.redirect(`${req.baseUrl}/${model.id}`))
+      fileStream.on('finish', async () => {
+        await db.setModelHasData(model.id, true)
+        res.redirect(`${req.baseUrl}/${model.id}`)
       })
       fileStream.on('error', () => {
         res.render('upload', Object.assign(res.locals, {
@@ -173,7 +181,7 @@ routerModel.post('/:id/upload', checkPathParamSet("id"), loadInstanceById(), (re
   req.pipe(busboy)
 })
 
-routerModel.post('/:id/start', checkPathParamSet("id"), loadInstanceById(), (req, res) => {
+routerModel.post('/:id/start', checkPathParamSet("id"), loadInstanceById(), async (req, res) => {
 
   let model = req.instance
   if (model.training_pid) {
@@ -182,47 +190,50 @@ routerModel.post('/:id/start', checkPathParamSet("id"), loadInstanceById(), (req
 
   const params = JSON.parse(model.train_params || "{}")
 
-  db.deleteLogEntries(model.id)
+  await db.deleteLogEntries(model.id)
 
-  trainModel(model.id, params, (err, subprocess) => {
-    if (err) return db.setModelTrainingStopped(model.id, () =>
-      res.render('show', Object.assign(res.locals, {
-        model: req.instance,
-        error: util.inspect(err)
-      }))
-    );
+  let subprocess
+  try {
+    subprocess = await trainModel(model.id, params)
+  } catch (err) {
+    await db.setModelTrainingStopped(model.id)
 
-    const wss = req.app.get(WEBSOCKET)
+    return res.render('show', Object.assign(res.locals, {
+      model: req.instance,
+      error: util.inspect(err)
+    }))
+  }
 
-    let chunkPosition = 1
-    subprocess.stdout.on('data', (data) => {
-      let logEntry = {
-        model_id: model.id,
-        chunk: data + "",
-        position: chunkPosition
-      }
-      db.insertLogEntry(logEntry)
-      wss.broadcast(JSON.stringify(logEntry))
-      chunkPosition++
-    });
-    subprocess.stderr.on('data', (data) => {
-      let logEntry = {
-        model_id: model.id,
-        chunk: `Error: ${data}`,
-        position: chunkPosition
-      }
-      db.insertLogEntry(logEntry)
-      wss.broadcast(JSON.stringify(logEntry))
-      chunkPosition++
-    });
+  const wss = req.app.get(WEBSOCKET)
 
-    db.setModelTrainingStarted(model.id, subprocess.pid, () =>
-      res.redirect(`${req.baseUrl}/${model.id}`)
-    );
-  })
+  let chunkPosition = 1
+  subprocess.stdout.on('data', async (data) => {
+    let logEntry = {
+      model_id: model.id,
+      chunk: data + "",
+      position: chunkPosition
+    }
+    await db.insertLogEntry(logEntry)
+    wss.broadcast(JSON.stringify(logEntry))
+    chunkPosition++
+  });
+  subprocess.stderr.on('data', async (data) => {
+    let logEntry = {
+      model_id: model.id,
+      chunk: `Error: ${data}`,
+      position: chunkPosition
+    }
+    await db.insertLogEntry(logEntry)
+    wss.broadcast(JSON.stringify(logEntry))
+    chunkPosition++
+  });
+
+  await db.setModelTrainingStarted(model.id, subprocess.pid);
+
+  res.redirect(`${req.baseUrl}/${model.id}`)
 })
 
-routerModel.post('/:id/stop', checkPathParamSet("id"), loadInstanceById(), (req, res) => {
+routerModel.post('/:id/stop', checkPathParamSet("id"), loadInstanceById(), async (req, res) => {
 
   let model = req.instance
   if (model.training_pid) {
@@ -234,10 +245,12 @@ routerModel.post('/:id/stop', checkPathParamSet("id"), loadInstanceById(), (req,
     }
   }
 
-  db.setModelTrainingStopped(model.id, () => res.redirect(`${req.baseUrl}/${model.id}`))
+  await db.setModelTrainingStopped(model.id)
+
+  res.redirect(`${req.baseUrl}/${model.id}`)
 })
 
-routerModel.get('/:id/sample', checkPathParamSet("id"), loadInstanceById(), (req, res) => {
+routerModel.get('/:id/sample', checkPathParamSet("id"), loadInstanceById(), async (req, res) => {
   let model = req.instance
   if (!model.is_complete) {
     res.status(400).send({error: "Not ready yet"})
@@ -258,16 +271,18 @@ routerModel.get('/:id/sample', checkPathParamSet("id"), loadInstanceById(), (req
   }, {})
 
   // TODO add start_string and max_length from query params
-  sampleModel(model.id, args, (err, subprocess) => {
-    if (err) {
-      return res.status(400).send({error: util.inspect(err)})
-    }
-    subprocess.stderr.on('data', (data) => {
-      console.log(`Error: ${data}`)
-    });
-    res.set('Content-Type', 'text/plain');
-    subprocess.stdout.pipe(res)
-  })
+  let subprocess
+  try {
+    subprocess = await sampleModel(model.id, args)
+  } catch (err) {
+    return res.status(400).send({error: util.inspect(err)})
+  }
+
+  subprocess.stderr.on('data', (data) => {
+    console.log(`Error: ${data}`)
+  });
+  res.set('Content-Type', 'text/plain');
+  subprocess.stdout.pipe(res)
 })
 
 module.exports = routerModel

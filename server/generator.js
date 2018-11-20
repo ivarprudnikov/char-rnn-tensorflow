@@ -16,7 +16,6 @@ const {
 
 const trainOptionsSchema = require("../generator/train_arguments_schema")
 const sampleOptionsSchema = require("../generator/sample_arguments_schema")
-
 const ajv = new Ajv({allErrors: true, coerceTypes: true, removeAdditional: true});
 const trainValidator = ajv.compile(trainOptionsSchema)
 const sampleValidator = ajv.compile(sampleOptionsSchema)
@@ -45,11 +44,9 @@ function checkSampleParams(params) {
  * Prepare model dir, create log file and try to train on _maybe_ existing train file
  * @param submissionId {String}
  * @param [params] {Object}
- * @return {Object} errors
+ * @return {Promise}
  */
-function trainModel(submissionId, params, cb) {
-
-  if (!submissionId) return cb("submissionId required");
+function trainModel(submissionId, params) {
 
   let args = {
     num_seqs: 32,
@@ -65,117 +62,127 @@ function trainModel(submissionId, params, cb) {
     log_every_n: 100,
     max_vocab: 3500
   }
-  if (typeof params === "object") {
-    let errors = chackTrainParams(params)
-    if (errors) {
-      return cb(errors)
-    } else {
-      Object.assign(args, params)
+
+  return new Promise(function (resolve, reject) {
+    if (!submissionId) reject("submissionId required");
+
+    if (typeof params === "object") {
+      let errors = chackTrainParams(params)
+      if (errors) {
+        return reject(errors)
+      } else {
+        Object.assign(args, params)
+      }
     }
-  }
 
-  const folderPath = path.join(UPLOADS_PATH, submissionId)
-  const trainFilePath = path.join(folderPath, TRAIN_FILENAME)
-  if (!fs.existsSync(trainFilePath)) return cb("missing training data file")
-  const trainPidPath = path.join(folderPath, TRAIN_PID_FILENAME)
-  const modelDir = path.join(GENERATOR_PATH, MODEL_DIR, submissionId)
-  rimraf.sync(modelDir)
-  mkdirp.sync(modelDir)
+    const folderPath = path.join(UPLOADS_PATH, submissionId)
+    const trainFilePath = path.join(folderPath, TRAIN_FILENAME)
+    if (!fs.existsSync(trainFilePath))
+      return reject("missing training data file")
 
-  /*
-  python train.py \
-    --input_file data/shakespeare.txt  \
-    --name shakespeare \
-    --num_steps 50 \
-    --num_seqs 32 \
-    --learning_rate 0.01 \
-    --max_steps 20000
-  */
-  let spawnArgs = [
-    "-u",
-    path.join(GENERATOR_PATH, 'train.py'),
-    "--input_file", trainFilePath, // utf8 encoded text file
-    "--name", submissionId // name of the model
-    // TODO add whitelist file
-  ]
-  Object.keys(args).forEach((k) => {
-    if (k != null && args[k] != null) {
-      spawnArgs.push(`--${k}`)
-      spawnArgs.push(args[k])
-    }
-  })
-  const subprocess = spawn('python', spawnArgs, {
-    stdio: ['ignore', "pipe", "pipe"]
-  });
-  fs.writeFileSync(trainPidPath, subprocess.pid)
-  subprocess.on("error", () => {
-    rimraf.sync(trainPidPath)
-    setModelTrainingStopped(submissionId, () => {
+    const trainPidPath = path.join(folderPath, TRAIN_PID_FILENAME)
+    const modelDir = path.join(GENERATOR_PATH, MODEL_DIR, submissionId)
+    rimraf.sync(modelDir)
+    mkdirp.sync(modelDir)
+
+    /*
+    python train.py \
+      --input_file data/shakespeare.txt  \
+      --name shakespeare \
+      --num_steps 50 \
+      --num_seqs 32 \
+      --learning_rate 0.01 \
+      --max_steps 20000
+    */
+    let spawnArgs = [
+      "-u",
+      path.join(GENERATOR_PATH, 'train.py'),
+      "--input_file", trainFilePath, // utf8 encoded text file
+      "--name", submissionId // name of the model
+      // TODO add whitelist file
+    ]
+    Object.keys(args).forEach((k) => {
+      if (k != null && args[k] != null) {
+        spawnArgs.push(`--${k}`)
+        spawnArgs.push(args[k])
+      }
     })
-  })
-  subprocess.on("exit", () => {
-    rimraf.sync(trainPidPath)
-    setModelTrainingStopped(submissionId, () => {
+    const subprocess = spawn('python', spawnArgs, {
+      stdio: ['ignore', "pipe", "pipe"]
+    });
+    fs.writeFileSync(trainPidPath, subprocess.pid)
+    subprocess.on("error", () => {
+      rimraf.sync(trainPidPath)
+      setModelTrainingStopped(submissionId)
     })
+    subprocess.on("exit", () => {
+      rimraf.sync(trainPidPath)
+      setModelTrainingStopped(submissionId)
+    })
+
+    resolve(subprocess);
   })
 
-  return cb(null, subprocess);
 }
 
 /**
  * @param submissionId {String}
- * @param cb {Function} callback
+ * @param params {Object}
+ * @return {Promise}
  */
-function sampleModel(submissionId, params, cb) {
+function sampleModel(submissionId, params) {
 
-  if (!submissionId) return cb("submissionId required");
+  return new Promise(function (resolve, reject) {
 
-  const modelDir = path.join(GENERATOR_PATH, MODEL_DIR, submissionId)
-  if (!fs.existsSync(modelDir)) return cb("missing the model")
+    if (!submissionId) return reject("submissionId required");
 
-  let args = {
-    lstm_size: 128,
-    num_layers: 2,
-    use_embedding: false,
-    embedding_size: 128,
-    start_string: '',
-    max_length: 30
-  }
+    const modelDir = path.join(GENERATOR_PATH, MODEL_DIR, submissionId)
+    if (!fs.existsSync(modelDir)) return reject("missing the model")
 
-  if (typeof params === "object") {
-    let errors = checkSampleParams(params)
-    if (errors) {
-      return cb(errors)
-    } else {
-      Object.assign(args, params)
+    let args = {
+      lstm_size: 128,
+      num_layers: 2,
+      use_embedding: false,
+      embedding_size: 128,
+      start_string: '',
+      max_length: 30
     }
-  }
 
-  /*
-  python sample.py \
-    --converter_path model/shakespeare/converter.pkl \
-    --checkpoint_path model/shakespeare/ \
-    --max_length 1000
-  */
-  let spawnArgs = [
-    "-u",
-    path.join(GENERATOR_PATH, 'sample.py'),
-    "-W", "ignore",
-    "--converter_path", path.join(modelDir, "converter.pkl"),
-    "--checkpoint_path", modelDir,
-  ]
-  Object.keys(args).forEach((k) => {
-    if (k != null && args[k] != null) {
-      spawnArgs.push(`--${k}`)
-      spawnArgs.push(args[k])
+    if (typeof params === "object") {
+      let errors = checkSampleParams(params)
+      if (errors) {
+        return reject(errors)
+      } else {
+        Object.assign(args, params)
+      }
     }
+
+    /*
+    python sample.py \
+      --converter_path model/shakespeare/converter.pkl \
+      --checkpoint_path model/shakespeare/ \
+      --max_length 1000
+    */
+    let spawnArgs = [
+      "-u",
+      path.join(GENERATOR_PATH, 'sample.py'),
+      "-W", "ignore",
+      "--converter_path", path.join(modelDir, "converter.pkl"),
+      "--checkpoint_path", modelDir,
+    ]
+    Object.keys(args).forEach((k) => {
+      if (k != null && args[k] != null) {
+        spawnArgs.push(`--${k}`)
+        spawnArgs.push(args[k])
+      }
+    })
+    console.log("Sampling", util.inspect(spawnArgs))
+    const subprocess = spawn('python', spawnArgs, {
+      stdio: ["ignore", "pipe", "pipe"]
+    });
+
+    resolve(subprocess)
   })
-  console.log("Sampling", util.inspect(spawnArgs))
-  const process = spawn('python', spawnArgs, {
-    stdio: ["ignore", "pipe", "pipe"]
-  });
-
-  cb(null, process)
 }
 
 module.exports = {
