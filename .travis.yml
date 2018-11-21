@@ -1,23 +1,23 @@
 sudo: required
 
-language: generic
+language: python
 
 services:
 - docker
 
 env:
-- DOCKER_PASSWORD=
-- DOCKER_USERNAME=
-- DOCKER_TAG=ivarprudnikov/char-rnn-tensorflow
+- DOCKER_REPO=ivarprudnikov/rnn-generator
+- REGISTRY_URL=630017267485.dkr.ecr.eu-west-1.amazonaws.com
+
+before_install:
+- pip install --user awscli
+- export PATH=$PATH:$HOME/.local/bin
 
 script:
-- docker build -t $DOCKER_TAG .
+- docker build -t $DOCKER_REPO .
 
 deploy:
   provider: script
   script: bash docker_push.sh
   on:
     branch: master
-
-after_deploy:
-- echo "TODO: notify AWS of the new version"
