@@ -1,5 +1,7 @@
 # Char-RNN-TensorFlow - IN PROGRESS
 
+[![Build Status](https://travis-ci.org/ivarprudnikov/char-rnn-tensorflow.svg?branch=master)](https://travis-ci.org/ivarprudnikov/char-rnn-tensorflow)
+
 Character generator using recurrent neural network (_RNN_).
 Also _Node.js_ server used to provide _HTTP_ API for training 
 _RNN_ and then generating samples from saved checkpoints.
