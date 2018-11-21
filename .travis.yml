@@ -6,8 +6,9 @@ services:
 - docker
 
 env:
-- DOCKER_REPO=ivarprudnikov/rnn-generator
-- REGISTRY_URL=630017267485.dkr.ecr.eu-west-1.amazonaws.com
+  global:
+    - DOCKER_REPO=ivarprudnikov/rnn-generator
+    - REGISTRY_URL=630017267485.dkr.ecr.eu-west-1.amazonaws.com
 
 before_install:
 - pip install --user awscli
