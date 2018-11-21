@@ -1,0 +1,23 @@
+sudo: required
+
+language: generic
+
+services:
+- docker
+
+env:
+- DOCKER_PASSWORD=
+- DOCKER_USERNAME=
+- DOCKER_TAG=ivarprudnikov/char-rnn-tensorflow
+
+script:
+- docker build -t $DOCKER_TAG .
+
+deploy:
+  provider: script
+  script: bash docker_push.sh
+  on:
+    branch: master
+
+after_deploy:
+- echo "TODO: notify AWS of the new version"
