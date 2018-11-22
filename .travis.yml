@@ -1,22 +1,18 @@
 sudo: required
-
 language: python
-
 services:
 - docker
-
 env:
   global:
-    - DOCKER_REPO=ivarprudnikov/rnn-generator
-    - REGISTRY_URL=630017267485.dkr.ecr.eu-west-1.amazonaws.com
-
+  - DOCKER_REPO=ivarprudnikov/rnn-generator
+  - REGISTRY_URL=630017267485.dkr.ecr.eu-west-1.amazonaws.com
+  - secure: oFCFms3HNKJ6y86SG7Zt02776ihLkICCs28kML6I0Hsi2ZuSarDucjqZMskOsV7yaFjKasbztUa25oC/EWemhUMdFIJN008Vu4r4nTxOmfOzHqt1lvJs60yx9R//kSgqUaZiT5pvqmRFh3V2mzAXy6/DVK4P/H7RQ5teBUaUUyoWSqI52/cWmasIG6+YYl2w0ximP0eTOJYJR3FVxuURKH8P+t3GLAaqxkKv6/jDZG0/ydDZLwE3+cLklB1NSxYJGemAI9367IUXf+s0UFKCTVzmqL/sLKH4vWzgAba2PJFVgq+BCS5MzYuyOkFS6gyrhwOwnhhKzC79tO6AQS49/9oK9ka3P+9YG1MPYSINHIoWuj6Ivm7U3wHoIrAZPm6PAMRz6xUduadlYtPPYxCgC1jNyvRHregQ8EUSkxTewFSLpts7DD1dkr5+AuI4SzSwISGxYMr442pWA9Q9bZ8e2Mpk7iiy9VbOCNnXicQhrfu5xluzPz1ofif40LXoi+XFvybDpZPuU2riGI3WUunUj99VSQVZs7jyiLB4PvxfAYPk/R1H8ebWtpRd7ZwjcEfwA0T63RDTwtLJNiXPu/kQWXYXiEJ02Puf1lr4Bot8pS/bL5O+5j/vW9wKyz6GO0w9w+F0KWcR2WgLVq1D+vh4jCU1h+e0kIukDBFoG0R6IGU=
+  - secure: uisPRs+nWzc+pUFtc7hCjNdihbMITGglm1sRYbSea1GKl0e2gwovB4oVBNDj49CB+qm31CTxS8jibylKad0qn+Ui3oDG8hJkI1AUKTFSqM8kX+PaP3gILYEQmI/QUV51cHSyxgTVGBZhuW6rJ3uOUfYXdE/NUJVZIQWnDLvANBzs/We/ERG48oiX7mVF06y9454Oz5lKOEh+HOxEwCAYapgyZv3tjD7HuePYAjpvYdfZ5PBTyYqLcB/qd1iAzPcXA+3RpVy1/3ca9/uSxXMllWv56vWauJAkGOjP2TkJx48Qgwks8QEcSHktl4yBw+EPwRte+cnuwgvgpIMuIY3hHwggJRCu5EaaCFmeNhlYxPxuCPVxsv5reg5oe95TVfNlvhdiDh89RAB2wUUSRyvIN3Xv9R9S1eljLrpNL5RcT24jzQRk0r8DxKCT67AH8YxZcZs0u9/WHdnoByn9qEx9SHlA7cLjj+RgRJvi/s3XyVG2l1vT8IuLj3sn0PcpkQe0/pJtv2OuEXT5QEZoXl/rzLZRi7p870pTLQoZpDA3nAlbx4eg9pSEEWW2F/vcXTpOdCdtJ4N6USp7Lw16yjFpTrjNjzxaA29KraKSBGpv9S7gEKYRhv1r+qqP/cjh5V4fWFjN5kp2+jEyiAB5smzpObyuJMcb5kiPeolb+GV6Lg8=
 before_install:
 - pip install awscli
 - export PATH=$PATH:$HOME/.local/bin
-
 script:
 - docker build -t $DOCKER_REPO .
-
 deploy:
   provider: script
   script: bash docker_push.sh
