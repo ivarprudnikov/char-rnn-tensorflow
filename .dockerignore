@@ -3,3 +3,4 @@
 generator/data
 server/node_modules
 server/upload
+Dockerfile.aws.json
