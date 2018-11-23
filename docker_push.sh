@@ -1,4 +1,11 @@
 #!/bin/bash
+
+# update latest image and save current version in ECR
+
 $(aws ecr get-login --no-include-email --region eu-west-1)
-docker tag "${DOCKER_REPO}:latest" "${REGISTRY_URL}/${DOCKER_REPO}:latest"
-docker push "${REGISTRY_URL}/${DOCKER_REPO}:latest"
+
+SOURCE_IMAGE="${DOCKER_REPO}"
+TARGET_IMAGE="${REGISTRY_URL}/${DOCKER_REPO}"
+
+docker tag "${SOURCE_IMAGE}:latest" "${TARGET_IMAGE}:latest"
+docker push "${TARGET_IMAGE}:latest"
