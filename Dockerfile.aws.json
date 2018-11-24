@@ -2,14 +2,8 @@
   "AWSEBDockerrunVersion": "2",
   "containerDefinitions": [
     {
-      "name": "rnn-generator",
-      "image": "630017267485.dkr.ecr.eu-west-1.amazonaws.com/ivarprudnikov/rnn-generator:latest",
-      "portMappings": [
-        {
-          "hostPort": 80,
-          "containerPort": 8080
-        }
-      ]
+      "name": "<NAME>",
+      "image": "<TARGET_IMAGE>"
     }
   ]
 }
