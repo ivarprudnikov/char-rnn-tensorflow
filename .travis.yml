@@ -16,8 +16,6 @@ before_install:
 - pip install awscli
 - export PATH=$PATH:$HOME/.local/bin
 - export REGISTRY_URL=${AWS_ACCOUNT_ID}.dkr.ecr.${EB_REGION}.amazonaws.com
-- aws configure set default.region ${EB_REGION}
-- $(aws ecr get-login --no-include-email)
 - docker pull "${REGISTRY_URL}/${DOCKER_REPO}:latest"
 script:
 - docker build -t $DOCKER_REPO .
