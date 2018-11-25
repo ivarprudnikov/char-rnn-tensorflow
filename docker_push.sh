@@ -28,8 +28,8 @@ docker push ${TARGET_IMAGE_VERSIONED}
 ########################################
 
 # Interpolate Dockerrun.aws.json
-sed -i='' "s/<TARGET_IMAGE>/$TARGET_IMAGE_VERSIONED/" Dockerrun.aws.json
-sed -i='' "s/<NAME>/$DOCKER_REPO/" Dockerrun.aws.json
+sed -i '' "s/<TARGET_IMAGE>/$TARGET_IMAGE_VERSIONED/" Dockerrun.aws.json
+sed -i '' "s/<NAME>/$DOCKER_REPO/" Dockerrun.aws.json
 
 # Zip application
 zip -r ${ZIP} Dockerrun.aws.json
