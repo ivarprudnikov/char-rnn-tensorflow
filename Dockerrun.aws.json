@@ -1,9 +1,19 @@
 {
   "AWSEBDockerrunVersion": "2",
+  "volumes": [],
   "containerDefinitions": [
     {
       "name": "generator",
-      "image": "<TARGET_IMAGE>"
+      "image": "<TARGET_IMAGE>",
+      "essential": true,
+      "memoryReservation": 96,
+      "portMappings": [
+        {
+          "hostPort": 8080,
+          "containerPort": 8080
+        }
+      ],
+      "mountPoints": []
     }
   ]
 }
