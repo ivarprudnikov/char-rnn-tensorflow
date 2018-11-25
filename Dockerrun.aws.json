@@ -2,7 +2,7 @@
   "AWSEBDockerrunVersion": "2",
   "containerDefinitions": [
     {
-      "name": "<NAME>",
+      "name": "generator",
       "image": "<TARGET_IMAGE>"
     }
   ]

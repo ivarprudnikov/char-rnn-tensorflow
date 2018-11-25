@@ -29,7 +29,6 @@ docker push ${TARGET_IMAGE_VERSIONED}
 
 # Interpolate Dockerrun.aws.json and also create backup .bak file
 sed -i.bak "s#<TARGET_IMAGE>#$TARGET_IMAGE_VERSIONED#" Dockerrun.aws.json
-sed -i.bak "s#<NAME>#$DOCKER_REPO#" Dockerrun.aws.json
 
 # Zip application
 zip -r ${ZIP} Dockerrun.aws.json
