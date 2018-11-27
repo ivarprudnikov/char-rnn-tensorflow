@@ -14,6 +14,7 @@ const {
   UPLOADS_PATH,
   PORT
 } = require("./constants")
+const {errorHandler} = require('./middleware')
 
 app.set('views', path.join(__dirname, VIEWS_DIR));
 app.set('view engine', 'ejs');
@@ -41,6 +42,8 @@ wss.on('connection', (ws) => {
   ws.send('Connection with WebSocket server initialized');
 });
 app.set(WEBSOCKET, wss);
+
+app.use(errorHandler());
 
 // Start HTTP server
 server.listen(PORT, () => {

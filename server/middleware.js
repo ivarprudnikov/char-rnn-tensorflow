@@ -1,3 +1,5 @@
+const util = require("util")
+
 module.exports.localsFormHelper = (req, res, next) => {
   res.locals.fieldErr = (key) => {
     const resLocals = res.locals || {}
@@ -21,3 +23,20 @@ module.exports.checkPathParamSet = (paramName) => {
     next()
   }
 }
+
+const HTTP_SERVER_ERROR = 500
+module.exports.errorHandler = () => {
+  return (err, req, res, next) => {
+    if (res.headersSent) {
+      return next(err);
+    }
+    console.log("Server error", util.inspect(err))
+    return res.status(err.status || HTTP_SERVER_ERROR).render('500');
+  }
+}
+
+module.exports.asyncErrHandler = (asyncFn, req, res) => asyncFn(req, res)
+  .catch(err => {
+    console.log("Server error", util.inspect(err))
+    res.status(HTTP_SERVER_ERROR).render('500')
+  });

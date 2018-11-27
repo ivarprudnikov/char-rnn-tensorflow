@@ -14,7 +14,7 @@ const {
   TRAIN_FILENAME,
   UPLOADS_PATH,
 } = require("./constants")
-const {checkPathParamSet, localsFormHelper} = require('./middleware')
+const {checkPathParamSet, localsFormHelper, asyncErrHandler} = require('./middleware')
 
 function loadInstanceById() {
   return async (req, res, next) => {
@@ -30,7 +30,7 @@ function loadInstanceById() {
 
 routerModel.use(localsFormHelper)
 
-routerModel.get('/', async (req, res) => {
+routerModel.get('/', asyncErrHandler.bind(null, async (req, res) => {
   let params = {
     max: Math.min(parseInt(req.query.max) || 10, 100),
     offset: parseInt(req.query.offset) || 0
@@ -39,13 +39,13 @@ routerModel.get('/', async (req, res) => {
   let models = await db.list(params.max, params.offset)
 
   res.render('list', Object.assign(res.locals, {models, total, params}))
-})
+}))
 
 routerModel.get('/create', (req, res) => {
   res.render('create')
 })
 
-routerModel.post('/create', multerUpload.none(), async (req, res) => {
+routerModel.post('/create', multerUpload.none(), asyncErrHandler.bind(null, async (req, res) => {
 
   let name = req.body.name
 
@@ -73,16 +73,16 @@ routerModel.post('/create', multerUpload.none(), async (req, res) => {
   }
 
   res.redirect(`${req.baseUrl}/${id}`)
-})
+}))
 
-routerModel.get('/:id', checkPathParamSet("id"), loadInstanceById(), async (req, res) => {
+routerModel.get('/:id', checkPathParamSet("id"), loadInstanceById(), asyncErrHandler.bind(null, async (req, res) => {
   let rows = await db.findLog(req.instance.id)
   let log = (rows || []).map((row) => row.chunk).join("")
   res.render('show', Object.assign(res.locals, {
     model: req.instance,
     log: log
   }))
-})
+}))
 
 routerModel.get('/:id/options', checkPathParamSet("id"), loadInstanceById(), (req, res) => {
   res.render('training_options', Object.assign(res.locals, {
@@ -91,7 +91,7 @@ routerModel.get('/:id/options', checkPathParamSet("id"), loadInstanceById(), (re
   }))
 })
 
-routerModel.post('/:id/options', checkPathParamSet("id"), loadInstanceById(), multerUpload.none(), async (req, res) => {
+routerModel.post('/:id/options', checkPathParamSet("id"), loadInstanceById(), multerUpload.none(), asyncErrHandler.bind(null, async (req, res) => {
 
   let model = req.instance
 
@@ -118,7 +118,7 @@ routerModel.post('/:id/options', checkPathParamSet("id"), loadInstanceById(), mu
   })
 
   res.redirect(`${req.baseUrl}/${model.id}`)
-})
+}))
 
 routerModel.get('/:id/upload', checkPathParamSet("id"), loadInstanceById(), (req, res) => {
   res.render('upload', Object.assign(res.locals, {model: req.instance}))
@@ -181,7 +181,7 @@ routerModel.post('/:id/upload', checkPathParamSet("id"), loadInstanceById(), (re
   req.pipe(busboy)
 })
 
-routerModel.post('/:id/start', checkPathParamSet("id"), loadInstanceById(), async (req, res) => {
+routerModel.post('/:id/start', checkPathParamSet("id"), loadInstanceById(), asyncErrHandler.bind(null, async (req, res) => {
 
   let model = req.instance
   if (model.training_pid) {
@@ -231,9 +231,9 @@ routerModel.post('/:id/start', checkPathParamSet("id"), loadInstanceById(), asyn
   await db.setModelTrainingStarted(model.id, subprocess.pid);
 
   res.redirect(`${req.baseUrl}/${model.id}`)
-})
+}))
 
-routerModel.post('/:id/stop', checkPathParamSet("id"), loadInstanceById(), async (req, res) => {
+routerModel.post('/:id/stop', checkPathParamSet("id"), loadInstanceById(), asyncErrHandler.bind(null, async (req, res) => {
 
   let model = req.instance
   if (model.training_pid) {
@@ -248,9 +248,9 @@ routerModel.post('/:id/stop', checkPathParamSet("id"), loadInstanceById(), async
   await db.setModelTrainingStopped(model.id)
 
   res.redirect(`${req.baseUrl}/${model.id}`)
-})
+}))
 
-routerModel.get('/:id/sample', checkPathParamSet("id"), loadInstanceById(), async (req, res) => {
+routerModel.get('/:id/sample', checkPathParamSet("id"), loadInstanceById(), asyncErrHandler.bind(null, async (req, res) => {
   let model = req.instance
   if (!model.is_complete) {
     res.status(400).send({error: "Not ready yet"})
@@ -283,6 +283,6 @@ routerModel.get('/:id/sample', checkPathParamSet("id"), loadInstanceById(), asyn
   });
   res.set('Content-Type', 'text/plain');
   subprocess.stdout.pipe(res)
-})
+}))
 
 module.exports = routerModel
