@@ -51,5 +51,6 @@ server.listen(PORT, () => {
   console.log('+--------------------------')
   console.log(' PID %d', process.pid)
   console.log(' Listening on port', PORT)
+  console.log(' ', (new Date()).toISOString())
   console.log('+--------------------------')
 })

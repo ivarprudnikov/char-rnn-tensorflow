@@ -30,13 +30,13 @@ module.exports.errorHandler = () => {
     if (res.headersSent) {
       return next(err);
     }
-    console.log("Server error", util.inspect(err))
+    console.log((new Date()).toISOString(), "[ERROR]", util.inspect(err))
     return res.status(err.status || HTTP_SERVER_ERROR).render('500');
   }
 }
 
 module.exports.asyncErrHandler = (asyncFn, req, res) => asyncFn(req, res)
   .catch(err => {
-    console.log("Server error", util.inspect(err))
+    console.log((new Date()).toISOString(), "[ERROR]", util.inspect(err))
     res.status(HTTP_SERVER_ERROR).render('500')
   });
