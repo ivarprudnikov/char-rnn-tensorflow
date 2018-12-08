@@ -1,6 +1,9 @@
 const mysql = require('mysql')
 var pool = mysql.createPool({
   connectionLimit: 10,
+  connectTimeout  : 60 * 1000,
+  acquireTimeout   : 60 * 1000,
+  timeout         : 60 * 1000,
   host: process.env.MYSQL_HOST || 'localhost',
   user: process.env.MYSQL_USER || 'root',
   password: process.env.MYSQL_PASSWORD || '',
