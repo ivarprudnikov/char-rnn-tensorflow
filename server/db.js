@@ -1,13 +1,16 @@
 const mysql = require('mysql')
 var pool = mysql.createPool({
   connectionLimit: 10,
-  connectTimeout  : 60 * 1000,
-  acquireTimeout   : 60 * 1000,
-  timeout         : 60 * 1000,
+  connectTimeout: 20 * 1000,
+  acquireTimeout: 20 * 1000,
+  timeout: 10 * 1000,
   host: process.env.MYSQL_HOST || 'localhost',
   user: process.env.MYSQL_USER || 'root',
   password: process.env.MYSQL_PASSWORD || '',
-  database: process.env.MYSQL_DATABASE || 'rnn_generator'
+  database: process.env.MYSQL_DATABASE || 'rnn_generator',
+  port: process.env.MYSQL_PORT || 3306,
+  ssl: "Amazon RDS",
+  insecureAuth: true
 });
 
 function queryWithPromise(query, positionalParams) {
