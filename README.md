@@ -1,6 +1,8 @@
-# Char-RNN-TensorFlow - IN PROGRESS
+# Char-RNN-TensorFlow
 
 [![Build Status](https://travis-ci.org/ivarprudnikov/char-rnn-tensorflow.svg?branch=master)](https://travis-ci.org/ivarprudnikov/char-rnn-tensorflow)
+
+**Blog post explaining it all** [Run Tensorflow scripts from Node.js server deployed on AWS as Docker container](https://www.ivarprudnikov.com/run-tensorflow-scripts-nodejs-server-deployed-aws-docker-container/)
 
 Character generator using recurrent neural network (_RNN_).
 Also _Node.js_ server used to provide _HTTP_ API for training 
