@@ -21,6 +21,7 @@
     <% } %>
 
     <a class="btn btn-sm btn-outline-primary" href="/model/<%= model.id %>/options">Update training options</a>
+    <a class="btn btn-sm btn-outline-primary" href="/model/<%= model.id %>/soptions">Update sample options</a>
 
     <% if(model.is_in_progress){ %>
       <form class="d-inline-block" action="/model/<%= model.id %>/stop" method="post">

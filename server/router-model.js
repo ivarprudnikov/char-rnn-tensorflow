@@ -64,7 +64,8 @@ routerModel.post('/create', multerUpload.none(), asyncErrHandler.bind(null, asyn
     await db.insertModel({
       id: id,
       name: name,
-      train_params: "{}"
+      train_params: "{}",
+      sample_params: "{}"
     })
   } catch (e) {
     return res.render('create', Object.assign(res.locals, {
@@ -87,6 +88,13 @@ routerModel.get('/:id', checkPathParamSet("id"), loadInstanceById(), asyncErrHan
 routerModel.get('/:id/options', checkPathParamSet("id"), loadInstanceById(), (req, res) => {
   res.render('training_options', Object.assign(res.locals, {
     data: JSON.parse(req.instance.train_params),
+    model: req.instance
+  }))
+})
+
+routerModel.get('/:id/soptions', checkPathParamSet("id"), loadInstanceById(), (req, res) => {
+  res.render('sample_options', Object.assign(res.locals, {
+    data: JSON.parse(req.instance.sample_params),
     model: req.instance
   }))
 })
@@ -115,6 +123,25 @@ routerModel.post('/:id/options', checkPathParamSet("id"), loadInstanceById(), mu
 
   await db.updateModel(model.id, {
     train_params: JSON.stringify(params)
+  })
+
+  res.redirect(`${req.baseUrl}/${model.id}`)
+}))
+
+routerModel.post('/:id/soptions', checkPathParamSet("id"), loadInstanceById(), multerUpload.none(), asyncErrHandler.bind(null, async (req, res) => {
+
+  let model = req.instance
+
+  // filter out empty values
+  let params = Object.keys(req.body).reduce((memo, val) => {
+    if (req.body[val] != null && req.body[val] !== "") {
+      memo[val] = req.body[val]
+    }
+    return memo
+  }, {})
+
+  await db.updateModel(model.id, {
+    sample_params: JSON.stringify(params)
   })
 
   res.redirect(`${req.baseUrl}/${model.id}`)
@@ -189,6 +216,7 @@ routerModel.post('/:id/start', checkPathParamSet("id"), loadInstanceById(), asyn
   }
 
   const params = JSON.parse(model.train_params || "{}")
+  const sparams = JSON.parse(model.sample_params || "{}")
 
   await db.deleteLogEntries(model.id)
 
@@ -259,6 +287,7 @@ routerModel.get('/:id/sample', checkPathParamSet("id"), loadInstanceById(), asyn
 
   // use same params from training
   const trainingParams = JSON.parse(model.train_params)
+  const sampleParams = JSON.parse(model.sample_params)
   let args = [
     'lstm_size',
     'num_layers',
@@ -269,6 +298,12 @@ routerModel.get('/:id/sample', checkPathParamSet("id"), loadInstanceById(), asyn
       memo[key] = trainingParams[key]
     return memo;
   }, {})
+  if(sampleParams['max_length']>0){
+    args['max_length']=sampleParams['max_length']
+  }
+  if(sampleParams['start_string']){
+    args['start_string']=sampleParams['start_string']
+  }
 
   // TODO add start_string and max_length from query params
   let subprocess
