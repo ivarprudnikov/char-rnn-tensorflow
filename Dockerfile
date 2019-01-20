@@ -1,4 +1,4 @@
-FROM python:3.6
+FROM tensorflow/tensorflow:1.10.1-gpu-py3
 
 # replace shell with bash so we can source files
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
