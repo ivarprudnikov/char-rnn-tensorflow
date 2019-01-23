@@ -30,7 +30,7 @@
         <legend>Sample options</legend>
 
         <div class="form-group row">
-          <label for="start_string" class="col-sm-6 col-form-label">Number of seqs in one batch</label>
+          <label for="start_string" class="col-sm-6 col-form-label">String to start generator from</label>
           <div class="col-sm-6">
             <input name="start_string" placeholder="Default: " type="text" id="start_string"
                    class="form-control"  
@@ -39,7 +39,7 @@
         </div>
 
         <div class="form-group row">
-          <label for="max_length" class="col-sm-6 col-form-label">Length of one seq</label>
+          <label for="max_length" class="col-sm-6 col-form-label">Length of generated text</label>
           <div class="col-sm-6">
             <input name="max_length" placeholder="Default: 50" type="number" id="max_length"
                    class="form-control <% if(fieldErr("max_length")){ %>is-invalid<% } %>"
