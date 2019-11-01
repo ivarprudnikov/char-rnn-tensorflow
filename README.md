@@ -32,12 +32,21 @@ python dependencies are installed locally.
 
 - To `build` container image: `docker build -t <some_name> .`
 - To `run` above image: 
-```
+```shell script
 docker run --rm -ti \
     -e "MYSQL_HOST=docker.for.mac.localhost" \
     -e "MYSQL_USER=root" \
     -e "MYSQL_PASSWORD=" \
     -e "MYSQL_DATABASE=rnn_generator" \
+    -p 8080:8080 <some_name>
+```
+
+**Tip:** If you want to keep trained models and uploads between runs then map local volume/directory when starting Docker container:
+
+```shell script
+docker run --rm -ti \
+    -v /change/location/models:/app/generator/model \ 
+    -v /change/location/uploads:/app/server/uploads \
     -p 8080:8080 <some_name>
 ```
 
