@@ -28,7 +28,7 @@ and running image locally would replicate production environment.
 You could also run server directly but then need to be sure that all
 python dependencies are installed locally. 
 
-You will need to have MySQL database running with the schema provided in [mysql/](./mysql) 
+You will need to have MySQL database running with the schema provided in [mysql_setup/](./mysql_setup) 
 
 ### a) Build and run Docker image
 
