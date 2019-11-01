@@ -66,5 +66,4 @@ docker run --rm -ti \
 
 ## Your feedback
 
-You are free to open issues if there is anything bothering you, I'll read through and will make 
-best effort to fix/reply ASAP.
+You are free to open issues if there is anything bothering you.
