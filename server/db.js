@@ -9,7 +9,7 @@ var pool = mysql.createPool({
   password: process.env.MYSQL_PASSWORD || '',
   database: process.env.MYSQL_DATABASE || 'rnn_generator',
   port: process.env.MYSQL_PORT || 3306,
-  ssl: "Amazon RDS",
+  ssl: process.env.MYSQL_SSL || false,
   insecureAuth: true
 });
 
