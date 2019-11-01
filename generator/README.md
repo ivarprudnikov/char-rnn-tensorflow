@@ -27,7 +27,7 @@ To train:
 
 ```
 python train.py \
-  --input_file data/shakespeare.txt  \
+  --input_file ../train_data_samples/shakespeare.txt  \
   --name shakespeare \
   --num_steps 50 \
   --num_seqs 32 \
@@ -70,8 +70,8 @@ To train:
 
 ```
 python train.py \
-  --input_file data/ltu-vincas-mykolaitis-putinas-altoriu-sesely.txt  \
-  --whitelist_file data/ltu-char-whitelist.txt \
+  --input_file ../train_data_samples/ltu-vincas-mykolaitis-putinas-altoriu-sesely.txt  \
+  --whitelist_file ../train_data_samples/ltu-char-whitelist.txt \
   --name altoriu-sesely \
   --num_steps 50 \
   --num_seqs 32 \
@@ -106,7 +106,7 @@ To train:
 ```
 python train.py \
   --use_embedding \
-  --input_file data/poetry.txt \
+  --input_file ../train_data_samples/poetry.txt \
   --name poetry \
   --learning_rate 0.005 \
   --num_steps 26 \
@@ -141,7 +141,7 @@ To train:
 
 ```
 python train.py  \
-  --input_file data/jay.txt \
+  --input_file ../train_data_samples/jay.txt \
   --num_steps 20 \
   --batch_size 32 \
   --name jay \
@@ -183,7 +183,7 @@ To train:
 
 ```
 python train.py  \
-  --input_file data/linux.txt \
+  --input_file ../train_data_samples/linux.txt \
   --num_steps 100 \
   --name linux \
   --learning_rate 0.01 \
@@ -234,7 +234,7 @@ int print_init(struct priority *rt)
 To train:
 ```
 python train.py  \
-  --input_file data/jpn.txt \
+  --input_file ../train_data_samples/jpn.txt \
   --num_steps 20 \
   --batch_size 32 \
   --name jpn \
