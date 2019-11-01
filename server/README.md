@@ -5,7 +5,7 @@
 
 ### Prepare mysql
 
-Initialize MySQL database with the schema defined in [mysql/](./mysql/) directory.
+Initialize MySQL database with the schema defined in [../mysql/](../mysql/) directory.
 
 ### Setup
 - `nvm use` - set version of node using `.nvmrc`
