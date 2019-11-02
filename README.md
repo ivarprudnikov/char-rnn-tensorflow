@@ -66,6 +66,15 @@ docker run --rm -ti \
 - Use _Node.js_ `v10` `(venv) $ nvm use 10`
 - `run` server `(venv) $ node server/server`
 
+## GPU support
+
+This example does not have Tensorflow with GPU support. If you want to use GPU do one of the following:
+- change Tensorflow dependency in [generator/requirements.txt](./generator/requirements.txt) to the one that supports GPU, ie: `tensorflow-gpu==1.14`
+- change base [Docker image](./Dockerfile) to include Tensorflow with GPU:
+```dockerfile
+FROM tensorflow/tensorflow:1.14.0-gpu-py3
+```
+
 ## Your feedback
 
 You are free to open issues if there is anything bothering you.
