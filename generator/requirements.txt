@@ -1,4 +1,4 @@
-absl-py==0.4.1
+absl-py==0.8.1
 appnope==0.1.0
 astor==0.7.1
 backcall==0.1.0
@@ -17,11 +17,11 @@ prompt-toolkit==1.0.15
 protobuf==3.6.1
 ptyprocess==0.6.0
 Pygments==2.2.0
-setuptools==39.1.0
+setuptools==41.6.0
 simplegeneric==0.8.1
 six==1.11.0
-tensorboard==1.12.2
-tensorflow==1.12.2
+tensorboard==1.14.0
+tensorflow==1.14.0
 termcolor==1.1.0
 traitlets==4.3.2
 wcwidth==0.1.7
