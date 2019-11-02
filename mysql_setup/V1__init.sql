@@ -5,6 +5,7 @@ create table model (
   ON UPDATE CURRENT_TIMESTAMP,
   name           varchar(255) not null,
   train_params   json         not null,
+  sample_params  json         not null,
   has_data       tinyint      not null default false,
   is_in_progress tinyint      not null default false,
   is_complete    tinyint      not null default false,

@@ -14,6 +14,7 @@
     <% if(model.is_complete){ %>
       <button id="sampleBtn" type="button" class="btn btn-sm btn-primary" onclick="generateSample()">Generate sample
       </button>
+      <a class="btn btn-sm btn-outline-primary" href="/model/<%= model.id %>/soptions">Update sampling options</a>
     <% } %>
 
     <% if(!model.has_data){ %>

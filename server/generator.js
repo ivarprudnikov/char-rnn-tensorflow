@@ -187,6 +187,7 @@ function sampleModel(submissionId, params) {
 
 module.exports = {
   chackTrainParams,
+  checkSampleParams,
   trainModel,
   sampleModel
 }

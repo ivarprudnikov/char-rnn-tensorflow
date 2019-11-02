@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+<head>
+  <%- include('head'); %>
+</head>
+<body>
+
+<%- include('nav'); %>
+
+<main role="main" class="container">
+
+  <div class="row">
+
+    <form action="/model/<%= locals.model.id || 0 %>/soptions" method="post" enctype="multipart/form-data"
+          class="my-3 col-sm-8 offset-sm-2 col-lg-6 offset-lg-3">
+
+      <h1 class="h3 text-center mb-3">Update sampling options</h1>
+
+      <p class="lead">
+        Following sampling options are going to be used when generating samples.
+      </p>
+
+      <% if(locals.errors){ %>
+        <p class="alert alert-warning">
+          Form contains errors
+        </p>
+      <% } %>
+
+      <fieldset>
+        <legend>Sampling options</legend>
+
+        <div class="form-group row">
+          <label for="start_string" class="col-sm-6 col-form-label">String to start generator from</label>
+          <div class="col-sm-6">
+            <input name="start_string" placeholder="Default: " type="text" id="start_string"
+                   class="form-control <% if(fieldErr("start_string")){ %>is-invalid<% } %>"
+                   value="<%=fieldData("start_string")%>">
+            <% if(fieldErr("start_string")){ %>
+            <div class="invalid-feedback"><%= fieldErr("start_string") %></div>
+            <% } %>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label for="max_length" class="col-sm-6 col-form-label">Max length of generated text</label>
+          <div class="col-sm-6">
+            <input name="max_length" placeholder="Default: 50" type="number" id="max_length"
+                   class="form-control <%if(fieldErr("max_length")){%>is-invalid<%}%>"
+                   min="1"
+                   value="<%=fieldData("max_length")%>">
+            <% if(fieldErr("max_length")){ %>
+              <div class="invalid-feedback"><%= fieldErr("max_length") %></div>
+            <% } %>
+          </div>
+        </div>
+
+      </fieldset>
+
+      <hr class="mt-5">
+
+      <div class="text-right">
+        <a href="/model/<%= locals.model.id %>" class="btn btn-outline-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary">Update</button>
+      </div>
+    </form>
+
+  </div>
+
+</main>
+
+</body>
+</html>

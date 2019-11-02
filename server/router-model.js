@@ -3,7 +3,7 @@ const routerModel = express.Router()
 const Busboy = require('busboy')
 const uuidv1 = require('uuid/v1') // timestamp based
 const fs = require('fs')
-const {sampleModel, trainModel, chackTrainParams} = require("./generator")
+const {sampleModel, trainModel, chackTrainParams, checkSampleParams} = require("./generator")
 const multer = require('multer')
 const multerUpload = multer()
 const util = require("util")
@@ -64,7 +64,8 @@ routerModel.post('/create', multerUpload.none(), asyncErrHandler.bind(null, asyn
     await db.insertModel({
       id: id,
       name: name,
-      train_params: "{}"
+      train_params: "{}",
+      sample_params: "{}"
     })
   } catch (e) {
     return res.render('create', Object.assign(res.locals, {
@@ -120,6 +121,42 @@ routerModel.post('/:id/options', checkPathParamSet("id"), loadInstanceById(), mu
   res.redirect(`${req.baseUrl}/${model.id}`)
 }))
 
+routerModel.get('/:id/soptions', checkPathParamSet("id"), loadInstanceById(), (req, res) => {
+  res.render('sample_options', Object.assign(res.locals, {
+    data: JSON.parse(req.instance.sample_params),
+    model: req.instance
+  }))
+})
+
+routerModel.post('/:id/soptions', checkPathParamSet("id"), loadInstanceById(), multerUpload.none(), asyncErrHandler.bind(null, async (req, res) => {
+
+  let model = req.instance
+
+  // filter out empty values
+  let params = Object.keys(req.body).reduce((memo, val) => {
+    if (req.body[val] != null && req.body[val] !== "") {
+      memo[val] = req.body[val]
+    }
+    return memo
+  }, {})
+
+  let errors = checkSampleParams(params)
+  if (errors) {
+    return res.render('sample_options', Object.assign(res.locals, {
+      error: "Found " + Object.keys(errors).length + " errors",
+      errors: errors,
+      data: params,
+      model: req.instance
+    }))
+  }
+
+  await db.updateModel(model.id, {
+    sample_params: JSON.stringify(params)
+  })
+
+  res.redirect(`${req.baseUrl}/${model.id}`)
+}))
+
 routerModel.get('/:id/upload', checkPathParamSet("id"), loadInstanceById(), (req, res) => {
   res.render('upload', Object.assign(res.locals, {model: req.instance}))
 })
@@ -144,7 +181,9 @@ routerModel.post('/:id/upload', checkPathParamSet("id"), loadInstanceById(), (re
 
   busboy.on('file', (fieldName, file, fileName) => {
     if (fileName) {
-      fs.mkdirSync(folderPath)
+      if(!fs.existsSync(folderPath)){
+        fs.mkdirSync(folderPath)
+      }
       filePath = path.join(folderPath, TRAIN_FILENAME)
       fileStream = file.pipe(fs.createWriteStream(filePath))
     }
@@ -258,7 +297,7 @@ routerModel.get('/:id/sample', checkPathParamSet("id"), loadInstanceById(), asyn
   }
 
   // use same params from training
-  const trainingParams = JSON.parse(model.train_params)
+  const trainingParams = JSON.parse(model.train_params);
   let args = [
     'lstm_size',
     'num_layers',
@@ -270,7 +309,12 @@ routerModel.get('/:id/sample', checkPathParamSet("id"), loadInstanceById(), asyn
     return memo;
   }, {})
 
-  // TODO add start_string and max_length from query params
+  const sampleParams = JSON.parse(model.sample_params);
+  [ 'start_string', 'max_length' ].forEach(key => {
+    if (sampleParams[key])
+      args[key] = sampleParams[key];
+  })
+
   let subprocess
   try {
     subprocess = await sampleModel(model.id, args)
