@@ -34,6 +34,14 @@ You will need to have MySQL database running with the schema provided in [mysql_
 
 ### a) Build and run Docker image
 
+**Via prepared script**
+
+```shell script
+$ ./runDockerImage.sh
+```
+
+**Manually**
+
 - To `build` container image: `docker build -t <some_name> .`
 - To `run` above image: 
 ```shell script
