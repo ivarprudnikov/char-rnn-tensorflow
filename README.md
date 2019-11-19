@@ -77,6 +77,10 @@ This example does not have Tensorflow with GPU support. If you want to use GPU d
 FROM tensorflow/tensorflow:1.14.0-gpu-py3
 ```
 
+## AWS deployment
+
+Deployment to AWS was removed in commit https://github.com/ivarprudnikov/char-rnn-tensorflow/commit/040a93a46e674bb6be71d6cbe1b199142f98d19f
+
 ## Your feedback
 
 You are free to open issues if there is anything bothering you.
