@@ -1,0 +1,141 @@
+TensorFlow 2.0 Upgrade Script
+-----------------------------
+Converted 4 files
+Detected 29 issues that require attention
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+File: generator/train.py
+--------------------------------------------------------------------------------
+generator/train.py:11:8: ERROR: Using member tf.flags.FLAGS in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+generator/train.py:13:0: ERROR: Using member tf.flags.DEFINE_string in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+generator/train.py:14:0: ERROR: Using member tf.flags.DEFINE_integer in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+generator/train.py:15:0: ERROR: Using member tf.flags.DEFINE_integer in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+generator/train.py:16:0: ERROR: Using member tf.flags.DEFINE_integer in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+generator/train.py:17:0: ERROR: Using member tf.flags.DEFINE_integer in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+generator/train.py:18:0: ERROR: Using member tf.flags.DEFINE_boolean in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+generator/train.py:19:0: ERROR: Using member tf.flags.DEFINE_integer in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+generator/train.py:20:0: ERROR: Using member tf.flags.DEFINE_float in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+generator/train.py:21:0: ERROR: Using member tf.flags.DEFINE_float in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+generator/train.py:22:0: ERROR: Using member tf.flags.DEFINE_string in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+generator/train.py:23:0: ERROR: Using member tf.flags.DEFINE_string in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+generator/train.py:24:0: ERROR: Using member tf.flags.DEFINE_integer in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+generator/train.py:25:0: ERROR: Using member tf.flags.DEFINE_integer in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+generator/train.py:26:0: ERROR: Using member tf.flags.DEFINE_integer in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+generator/train.py:27:0: ERROR: Using member tf.flags.DEFINE_integer in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+--------------------------------------------------------------------------------
+File: generator/sample.py
+--------------------------------------------------------------------------------
+generator/sample.py:9:8: ERROR: Using member tf.flags.FLAGS in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+generator/sample.py:11:0: ERROR: Using member tf.flags.DEFINE_integer in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+generator/sample.py:12:0: ERROR: Using member tf.flags.DEFINE_integer in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+generator/sample.py:13:0: ERROR: Using member tf.flags.DEFINE_boolean in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+generator/sample.py:14:0: ERROR: Using member tf.flags.DEFINE_integer in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+generator/sample.py:15:0: ERROR: Using member tf.flags.DEFINE_string in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+generator/sample.py:16:0: ERROR: Using member tf.flags.DEFINE_string in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+generator/sample.py:17:0: ERROR: Using member tf.flags.DEFINE_string in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+generator/sample.py:18:0: ERROR: Using member tf.flags.DEFINE_integer in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+--------------------------------------------------------------------------------
+File: generator/model.py
+--------------------------------------------------------------------------------
+generator/model.py:53:32: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+generator/model.py:54:39: WARNING: tf.nn.embedding_lookup requires manual check. `partition_strategy` has been removed from tf.nn.embedding_lookup.  The 'div' strategy will be used by default.
+generator/model.py:119:20: WARNING: *.save requires manual check. (This warning is only applicable if the code saves a tf.Keras model) Keras model.save now saves to the Tensorflow SavedModel format by default, instead of HDF5. To continue saving to HDF5, add the argument save_format='h5' to the save() function.
+generator/model.py:122:12: WARNING: *.save requires manual check. (This warning is only applicable if the code saves a tf.Keras model) Keras model.save now saves to the Tensorflow SavedModel format by default, instead of HDF5. To continue saving to HDF5, add the argument save_format='h5' to the save() function.
+================================================================================
+Detailed log follows:
+
+================================================================================
+================================================================================
+Input tree: 'generator/'
+================================================================================
+--------------------------------------------------------------------------------
+Processing file 'generator/read_utils.py'
+ outputting to 'generator_v2/read_utils.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'generator/train.py'
+ outputting to 'generator_v2/train.py'
+--------------------------------------------------------------------------------
+
+11:8: ERROR: Using member tf.flags.FLAGS in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+13:0: ERROR: Using member tf.flags.DEFINE_string in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+14:0: ERROR: Using member tf.flags.DEFINE_integer in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+15:0: ERROR: Using member tf.flags.DEFINE_integer in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+16:0: ERROR: Using member tf.flags.DEFINE_integer in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+17:0: ERROR: Using member tf.flags.DEFINE_integer in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+18:0: ERROR: Using member tf.flags.DEFINE_boolean in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+19:0: ERROR: Using member tf.flags.DEFINE_integer in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+20:0: ERROR: Using member tf.flags.DEFINE_float in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+21:0: ERROR: Using member tf.flags.DEFINE_float in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+22:0: ERROR: Using member tf.flags.DEFINE_string in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+23:0: ERROR: Using member tf.flags.DEFINE_string in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+24:0: ERROR: Using member tf.flags.DEFINE_integer in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+25:0: ERROR: Using member tf.flags.DEFINE_integer in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+26:0: ERROR: Using member tf.flags.DEFINE_integer in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+27:0: ERROR: Using member tf.flags.DEFINE_integer in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+80:4: INFO: Renamed 'tf.app.run' to 'tf.compat.v1.app.run'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'generator/sample.py'
+ outputting to 'generator_v2/sample.py'
+--------------------------------------------------------------------------------
+
+9:8: ERROR: Using member tf.flags.FLAGS in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+11:0: ERROR: Using member tf.flags.DEFINE_integer in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+12:0: ERROR: Using member tf.flags.DEFINE_integer in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+13:0: ERROR: Using member tf.flags.DEFINE_boolean in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+14:0: ERROR: Using member tf.flags.DEFINE_integer in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+15:0: ERROR: Using member tf.flags.DEFINE_string in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+16:0: ERROR: Using member tf.flags.DEFINE_string in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+17:0: ERROR: Using member tf.flags.DEFINE_string in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+18:0: ERROR: Using member tf.flags.DEFINE_integer in deprecated module tf.flags. tf.flags has been removed, please use the argparse or absl modules if you need command line parsing.
+40:4: INFO: Renamed 'tf.app.run' to 'tf.compat.v1.app.run'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'generator/model.py'
+ outputting to 'generator_v2/model.py'
+--------------------------------------------------------------------------------
+
+34:8: INFO: Renamed 'tf.reset_default_graph' to 'tf.compat.v1.reset_default_graph'
+39:21: INFO: Renamed 'tf.train.Saver' to 'tf.compat.v1.train.Saver'
+42:13: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+42:13: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+43:26: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+45:27: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+47:29: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+53:32: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+53:32: INFO: Renamed 'tf.get_variable' to 'tf.compat.v1.get_variable'
+54:39: INFO: Added keywords to args of function 'tf.nn.embedding_lookup'
+54:39: WARNING: tf.nn.embedding_lookup requires manual check. `partition_strategy` has been removed from tf.nn.embedding_lookup.  The 'div' strategy will be used by default.
+58:19: INFO: Renamed 'tf.nn.rnn_cell.BasicLSTMCell' to 'tf.compat.v1.nn.rnn_cell.BasicLSTMCell'
+59:19: INFO: Renamed 'tf.nn.rnn_cell.DropoutWrapper' to 'tf.compat.v1.nn.rnn_cell.DropoutWrapper'
+62:13: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+62:13: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+63:19: INFO: Renamed 'tf.nn.rnn_cell.MultiRNNCell' to 'tf.compat.v1.nn.rnn_cell.MultiRNNCell'
+68:50: INFO: Renamed 'tf.nn.dynamic_rnn' to 'tf.compat.v1.nn.dynamic_rnn'
+73:17: INFO: Renamed 'tf.variable_scope' to 'tf.compat.v1.variable_scope'
+74:40: INFO: Renamed 'tf.truncated_normal' to 'tf.random.truncated_normal'
+81:13: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+81:13: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+84:19: INFO: Changing labels arg of tf.nn.softmax_cross_entropy_with_logits to tf.stop_gradient(labels). Please check this transformation.
+
+85:24: INFO: Added keywords to args of function 'tf.reduce_mean'
+88:16: INFO: Renamed 'tf.trainable_variables' to 'tf.compat.v1.trainable_variables'
+89:42: INFO: Added keywords to args of function 'tf.gradients'
+90:19: INFO: Renamed 'tf.train.AdamOptimizer' to 'tf.compat.v1.train.AdamOptimizer'
+94:23: INFO: Renamed 'tf.Session' to 'tf.compat.v1.Session'
+96:21: INFO: Renamed 'tf.global_variables_initializer' to 'tf.compat.v1.global_variables_initializer'
+119:20: WARNING: *.save requires manual check. (This warning is only applicable if the code saves a tf.Keras model) Keras model.save now saves to the Tensorflow SavedModel format by default, instead of HDF5. To continue saving to HDF5, add the argument save_format='h5' to the save() function.
+122:12: WARNING: *.save requires manual check. (This warning is only applicable if the code saves a tf.Keras model) Keras model.save now saves to the Tensorflow SavedModel format by default, instead of HDF5. To continue saving to HDF5, add the argument save_format='h5' to the save() function.
+156:23: INFO: Renamed 'tf.Session' to 'tf.compat.v1.Session'
+--------------------------------------------------------------------------------
+
