@@ -1,6 +1,8 @@
 # Char-RNN-TensorFlow
 
 [![Build Status](https://travis-ci.org/ivarprudnikov/char-rnn-tensorflow.svg?branch=master)](https://travis-ci.org/ivarprudnikov/char-rnn-tensorflow)
+[![GitHub issues](https://img.shields.io/github/issues/ivarprudnikov/char-rnn-tensorflow.svg)](https://github.com/ivarprudnikov/char-rnn-tensorflow/issues)
+[![GitHub last commit](https://img.shields.io/github/last-commit/ivarprudnikov/char-rnn-tensorflow.svg)](https://github.com/ivarprudnikov/char-rnn-tensorflow/commits/master)
 
 **Blog post explaining it all** [Run Tensorflow scripts from Node.js server deployed on AWS as Docker container](https://www.ivarprudnikov.com/run-tensorflow-scripts-nodejs-server-deployed-aws-docker-container/)
 
