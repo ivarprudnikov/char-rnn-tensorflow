@@ -39,6 +39,7 @@ def remove_non_matching_chars(text, whitelist):
     return text
 
 
+# TODO change into TF2 version using https://github.com/tensorflow/docs/blob/master/site/en/tutorials/text/text_generation.ipynb
 def main(_):
     script_path = os.path.abspath(os.path.dirname(__file__))
     model_path = os.path.join(script_path, 'model', flags.FLAGS.name)
