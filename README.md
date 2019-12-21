@@ -68,7 +68,7 @@ docker run --rm -ti \
 
 - Create new environment in dir `venv` - `$ virtualenv -p python3 venv`
 - Activate environment - `$ source venv/bin/activate`
-- Install dependencies - `(venv) $ pip install -r requirements.txt`
+- Install dependencies - `(venv) $ pip install -r generator/requirements.txt`
 
 *Existing virtualenv*
 
