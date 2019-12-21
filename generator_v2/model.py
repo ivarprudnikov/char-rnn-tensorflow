@@ -4,12 +4,14 @@ import numpy as np
 import time
 import os
 
+
 def pick_top_n(preds, vocab_size, top_n=5):
     p = np.squeeze(preds)
     p[np.argsort(p)[:-top_n]] = 0
     p = p / np.sum(p)
     c = np.random.choice(vocab_size, 1, p=p)[0]
     return c
+
 
 class CharRNN:
     def __init__(self, num_classes, num_seqs=64, num_steps=50,
