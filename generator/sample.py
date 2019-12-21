@@ -1,6 +1,6 @@
 import tensorflow as tf
-from read_utils import TextConverter
-from model import CharRNN
+from .read_utils import TextConverter
+from .model import CharRNN
 import os
 import logging
 
