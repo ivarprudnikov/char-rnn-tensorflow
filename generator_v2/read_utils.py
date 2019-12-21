@@ -28,7 +28,7 @@ class TextConverter(object):
             with open(filename, 'rb') as f:
                 self.vocab = pickle.load(f)
         else:
-            vocab = set(text)
+            vocab = sorted(set(text))
             vocab_count = {}
             for char in vocab:
                 vocab_count[char] = 0
@@ -42,7 +42,7 @@ class TextConverter(object):
                 vocab_count_list = vocab_count_list[:max_vocab]
             vocab = [x[0] for x in vocab_count_list]
 
-            print("using " +  str(len(vocab)) + " unique characters of this corpus:")
+            print("using " + str(len(vocab)) + " unique characters of this corpus:")
             print(vocab)
 
             self.vocab = vocab
