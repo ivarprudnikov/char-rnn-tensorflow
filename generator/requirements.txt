@@ -19,7 +19,7 @@ ptyprocess==0.6.0
 Pygments==2.2.0
 setuptools==41.6.0
 simplegeneric==0.8.1
-six==1.11.0
+six==1.14.0
 tensorboard==1.14.0
 tensorflow==1.14.0
 termcolor==1.1.0
