@@ -25,7 +25,7 @@
   "dependencies": {
     "ajv": "^6.5.4",
     "busboy": "^0.2.14",
-    "ejs": "~2.5.7",
+    "ejs": "~3.0.2",
     "express": "^4.16.3",
     "mkdirp": "^0.5.1",
     "multer": "^1.4.1",
